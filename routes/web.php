@@ -59,20 +59,37 @@ Route::middleware(['auth', HandleInertiaRequests::class])->group(function () {
         return \Inertia\Inertia::render('WarehouseMap', ['warehouses' => $warehouses]);
     })->name('warehouse-map');
 
-    // Admin, Manager can manage products
+    // Products Index — Read-only for all roles
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+    // Products — Admin, Manager
     Route::middleware([RoleMiddleware::class . ':admin,manager'])->group(function () {
-        Route::resource('products', ProductController::class);
+        Route::resource('products', ProductController::class)->except(['index', 'show']);
     });
 
-    // Admin, Manager can manage categories/suppliers
+    // Products Show — Read-only for all roles
+    Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+
+    // Categories/Suppliers — Read-only for all roles (or just admin/manager if not needed by auditor, but auditor might need them for filtering. We'll leave index if needed, but for now they are resource)
+    // Wait, the prompt doesn't explicitly mention auditor accessing category index. It says "create/edit/delete category". We'll keep them as admin/manager.
     Route::middleware([RoleMiddleware::class . ':admin,manager'])->group(function () {
         Route::resource('categories', CategoryController::class)->except('show');
         Route::resource('suppliers', SupplierController::class)->except('show');
     });
 
-    // Admin, Manager can manage warehouses
+    // Warehouses Index — Read-only for Auditor
+    Route::middleware([RoleMiddleware::class . ':admin,manager,auditor'])->group(function () {
+        Route::get('/warehouses', [WarehouseController::class, 'index'])->name('warehouses.index');
+    });
+
+    // Warehouses — Admin, Manager
     Route::middleware([RoleMiddleware::class . ':admin,manager'])->group(function () {
-        Route::resource('warehouses', WarehouseController::class);
+        Route::resource('warehouses', WarehouseController::class)->except(['index', 'show']);
+    });
+
+    // Warehouses Show — Read-only for Auditor
+    Route::middleware([RoleMiddleware::class . ':admin,manager,auditor'])->group(function () {
+        Route::get('/warehouses/{warehouse}', [WarehouseController::class, 'show'])->name('warehouses.show');
     });
 
     // Stock transactions
@@ -97,9 +114,13 @@ Route::middleware(['auth', HandleInertiaRequests::class])->group(function () {
         Route::get('/import/template/{type}', [ImportController::class, 'downloadTemplate'])->name('import.template');
     });
 
-    // Export/Reports — Admin, Manager
-    Route::middleware([RoleMiddleware::class . ':admin,manager'])->group(function () {
+    // Reports Index — Admin, Manager, Auditor
+    Route::middleware([RoleMiddleware::class . ':admin,manager,auditor'])->group(function () {
         Route::get('/reports', [ExportController::class, 'index'])->name('reports.index');
+    });
+
+    // Export — Admin, Manager
+    Route::middleware([RoleMiddleware::class . ':admin,manager'])->group(function () {
         Route::get('/export/inventory', [ExportController::class, 'inventoryReport'])->name('export.inventory');
         Route::get('/export/low-stock', [ExportController::class, 'lowStockReport'])->name('export.low-stock');
         Route::get('/export/transactions', [ExportController::class, 'transactionReport'])->name('export.transactions');

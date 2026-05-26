@@ -39,21 +39,23 @@ const navigation = {
         { name: 'Transfer Gudang', href: '/stock-transfers', icon: ArrowLeftRight },
         { name: 'Notifikasi', href: '/notifications', icon: Bell },
     ],
-    viewer: [
-        { name: 'Laporan', href: '/reports', icon: FileText },
+    auditor: [
+        { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+        { name: 'Produk & Stok', href: '/products', icon: Package },
         { name: 'Monitoring Stok', href: '/inventory-stocks', icon: Box },
+        { name: 'Laporan', href: '/reports', icon: FileText },
         { name: 'Peta Gudang', href: '/warehouse-map', icon: Map },
     ],
 };
 
-const roleLabels = { admin: 'Administrator', manager: 'Manajer Gudang', staff: 'Staf Gudang', viewer: 'Viewer' };
+const roleLabels = { admin: 'Administrator', manager: 'Manajer Gudang', staff: 'Staf Gudang', auditor: 'Auditor' };
 
 export default function AuthenticatedLayout({ children, title }) {
     const { auth, flash, notifications_count } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const user = auth.user;
-    const navItems = navigation[user.role] || navigation.viewer;
+    const navItems = navigation[user.role] || navigation.auditor;
     const currentPath = window.location.pathname;
 
     return (

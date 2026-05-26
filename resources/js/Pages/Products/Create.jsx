@@ -6,14 +6,21 @@ import { useState } from 'react';
 export default function Create({ categories, suppliers }) {
     const { data, setData, post, processing, errors } = useForm({
         sku:'', name:'', category_id:'', supplier_id:'', description:'', unit:'pcs',
-        purchase_price:'', selling_price:'', minimum_stock:10, image:null, is_active:true,
+        purchase_price:'', selling_price:'', minimum_stock:10, image:null, gallery:[], is_active:true,
     });
     const [preview, setPreview] = useState(null);
+    const [galleryPreviews, setGalleryPreviews] = useState([]);
 
     const handleImage = (e) => {
         const file = e.target.files[0];
         setData('image', file);
         if (file) setPreview(URL.createObjectURL(file));
+    };
+
+    const handleGallery = (e) => {
+        const files = Array.from(e.target.files);
+        setData('gallery', files);
+        setGalleryPreviews(files.map(file => URL.createObjectURL(file)));
     };
 
     const submit = (e) => { e.preventDefault(); post('/products', { forceFormData: true }); };
@@ -34,9 +41,19 @@ export default function Create({ categories, suppliers }) {
                     <FormField label="Harga Jual *" error={errors.selling_price}><Input type="number" value={data.selling_price} onChange={e=>setData('selling_price',e.target.value)}/></FormField>
                 </div>
                 <FormField label="Deskripsi" error={errors.description}><Textarea value={data.description||''} onChange={e=>setData('description',e.target.value)}/></FormField>
-                <FormField label="Gambar Produk" error={errors.image}>
+                <FormField label="Gambar Utama" error={errors.image}>
                     <input type="file" accept="image/*" onChange={handleImage} className="text-sm" />
                     {preview && <img src={preview} className="mt-2 w-32 h-32 object-cover rounded-lg"/>}
+                </FormField>
+                <FormField label="Galeri Gambar (Bisa pilih lebih dari satu)" error={errors.gallery}>
+                    <input type="file" accept="image/*" multiple onChange={handleGallery} className="text-sm" />
+                    {galleryPreviews.length > 0 && (
+                        <div className="flex gap-2 flex-wrap mt-2">
+                            {galleryPreviews.map((src, i) => (
+                                <img key={i} src={src} className="w-20 h-20 object-cover rounded-lg"/>
+                            ))}
+                        </div>
+                    )}
                 </FormField>
                 <FormField label="Status">
                     <label className="flex items-center gap-2"><input type="checkbox" checked={data.is_active} onChange={e=>setData('is_active',e.target.checked)} className="rounded border-surface-300 text-primary-600" /><span className="text-sm">Aktif</span></label>

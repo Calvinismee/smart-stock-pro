@@ -11,6 +11,14 @@ export default function Show({ product }) {
 
     const myStock = product.inventory_stocks?.find(s => s.warehouse_id === userWarehouseId);
     const otherStocks = product.inventory_stocks?.filter(s => s.warehouse_id !== userWarehouseId) || [];
+
+    const allImages = [];
+    if (product.image) allImages.push(`/storage/${product.image}`);
+    if (product.gallery && product.gallery.length > 0) {
+        product.gallery.forEach(img => allImages.push(`/storage/${img}`));
+    }
+    const [currentImageIdx, setCurrentImageIdx] = useState(0);
+
     return (
         <AuthenticatedLayout title={product.name}>
             <Head title={product.name} />
@@ -29,7 +37,22 @@ export default function Show({ product }) {
                     {product.description && <div><span className="text-surface-500 text-sm">Deskripsi</span><p className="text-sm mt-1">{product.description}</p></div>}
                 </div>
                 <div>
-                    {product.image && <img src={`/storage/${product.image}`} className="rounded-xl w-full object-cover mb-4"/>}
+                    {allImages.length > 0 && (
+                        <div className="relative mb-4 group rounded-xl overflow-hidden shadow-sm border border-surface-200">
+                            <img src={allImages[currentImageIdx]} className="w-full h-72 object-cover bg-surface-100 transition-all duration-300"/>
+                            {allImages.length > 1 && (
+                                <>
+                                    <button onClick={() => setCurrentImageIdx(prev => prev === 0 ? allImages.length - 1 : prev - 1)} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">‹</button>
+                                    <button onClick={() => setCurrentImageIdx(prev => prev === allImages.length - 1 ? 0 : prev + 1)} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">›</button>
+                                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                        {allImages.map((_, i) => (
+                                            <button key={i} onClick={() => setCurrentImageIdx(i)} className={`w-2 h-2 rounded-full transition-all ${i === currentImageIdx ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/75'}`} />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
                     <div className="bg-white rounded-xl border border-surface-200 p-5">
                         <h3 className="text-sm font-semibold text-surface-900 mb-3">Stok per Gudang</h3>
                         {isStaff ? (

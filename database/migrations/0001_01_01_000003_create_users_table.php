@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'manager', 'staff', 'viewer'])->default('viewer');
+            $table->enum('role', ['admin', 'manager', 'staff', 'auditor'])->default('auditor');
             $table->foreignId('warehouse_id')->nullable()->constrained('warehouses')->nullOnDelete();
             $table->boolean('is_active')->default(true);
             $table->rememberToken();

@@ -54,7 +54,7 @@ class ProductController extends Controller
 
     public function create()
     {
-        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'auditor') {
             abort(403, 'Akses ditolak.');
         }
 
@@ -66,7 +66,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'auditor') {
             abort(403, 'Akses ditolak.');
         }
 
@@ -81,12 +81,22 @@ class ProductController extends Controller
             'selling_price' => ['required', 'numeric', 'min:0'],
             'minimum_stock' => ['required', 'integer', 'min:0'],
             'image' => ['nullable', 'image', 'max:2048'],
+            'gallery' => ['nullable', 'array'],
+            'gallery.*' => ['image', 'max:2048'],
             'is_active' => ['boolean'],
         ]);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
+
+        $galleryImages = [];
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $galleryImages[] = $file->store('products', 'public');
+            }
+        }
+        $validated['gallery'] = $galleryImages;
 
         $product = Product::create($validated);
 
@@ -106,7 +116,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'auditor') {
             abort(403, 'Akses ditolak.');
         }
 
@@ -119,7 +129,7 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'auditor') {
             abort(403, 'Akses ditolak.');
         }
 
@@ -134,6 +144,10 @@ class ProductController extends Controller
             'selling_price' => ['required', 'numeric', 'min:0'],
             'minimum_stock' => ['required', 'integer', 'min:0'],
             'image' => ['nullable', 'image', 'max:2048'],
+            'gallery' => ['nullable', 'array'],
+            'gallery.*' => ['image', 'max:2048'],
+            'existing_gallery' => ['nullable', 'array'],
+            'existing_gallery.*' => ['string'],
             'is_active' => ['boolean'],
         ]);
 
@@ -145,6 +159,24 @@ class ProductController extends Controller
             }
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
+
+        $existingGallery = $request->input('existing_gallery', []);
+        $currentGallery = $product->gallery ?? [];
+        
+        // Delete removed images
+        $removedImages = array_diff($currentGallery, $existingGallery);
+        foreach ($removedImages as $img) {
+            Storage::disk('public')->delete($img);
+        }
+
+        $newGallery = $existingGallery;
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $newGallery[] = $file->store('products', 'public');
+            }
+        }
+        $validated['gallery'] = $newGallery;
+        unset($validated['existing_gallery']);
 
         $product->update($validated);
 
@@ -164,6 +196,11 @@ class ProductController extends Controller
 
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
+        }
+        if ($product->gallery) {
+            foreach ($product->gallery as $img) {
+                Storage::disk('public')->delete($img);
+            }
         }
 
         $product->delete();

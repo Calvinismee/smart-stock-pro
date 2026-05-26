@@ -109,11 +109,11 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        $users['viewer'] = User::create([
-            'name' => 'Viewer',
-            'email' => 'viewer@smartstock.test',
+        $users['auditor'] = User::create([
+            'name' => 'Auditor',
+            'email' => 'auditor@smartstock.test',
             'password' => Hash::make('password'),
-            'role' => 'viewer',
+            'role' => 'auditor',
             'is_active' => true,
             'email_verified_at' => now(),
         ]);
@@ -179,9 +179,35 @@ class DatabaseSeeder extends Seeder
         ];
 
         $products = [];
+        // Map category_id to a downloaded image
+        $categoryImages = [
+            $categories[0]->id => 'products/phone.jpg',
+            $categories[1]->id => 'products/laptop.jpg',
+            $categories[2]->id => 'products/tablet.jpg',
+            $categories[3]->id => 'products/audio.jpg',
+            $categories[4]->id => 'products/router.jpg',
+            $categories[5]->id => 'products/accessory.jpg',
+            $categories[6]->id => 'products/accessory.jpg',
+            $categories[7]->id => 'products/monitor.jpg',
+        ];
+
+        // All available images to use for random gallery
+        $allImages = array_values(array_unique($categoryImages));
+
         foreach ($data as $p) {
+            $mainImg = $categoryImages[$p['category_id']] ?? 'products/accessory.jpg';
+            
+            // Create a small random gallery from other images
+            $gallery = collect($allImages)
+                ->reject(fn($img) => $img === $mainImg)
+                ->random(rand(2, 4))
+                ->values()
+                ->toArray();
+
             $products[] = Product::create(array_merge($p, [
                 'description' => 'Produk elektronik berkualitas tinggi dari distributor resmi.',
+                'image' => $mainImg,
+                'gallery' => $gallery,
                 'is_active' => true,
             ]));
         }

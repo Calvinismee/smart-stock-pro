@@ -20,8 +20,6 @@ class DashboardController extends Controller
         
         if ($user && $user->role === 'staff') {
             return redirect()->route('my-warehouse');
-        } elseif ($user && $user->role === 'viewer') {
-            return redirect()->route('reports.index');
         }
 
         $stats = [

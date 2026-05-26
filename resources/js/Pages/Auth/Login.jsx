@@ -1,7 +1,10 @@
 import { useForm, Head } from '@inertiajs/react';
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
     const { data, setData, post, processing, errors } = useForm({ email: '', password: '', remember: false });
+    const [showPassword, setShowPassword] = useState(false);
 
     const submit = (e) => { e.preventDefault(); post('/login'); };
 
@@ -20,21 +23,36 @@ export default function Login() {
 
                     <form onSubmit={submit} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
                         <h2 className="text-xl font-semibold text-white mb-6">Masuk ke Akun Anda</h2>
+                        
+                        {/* Display general login error if present (usually mapped to email by Laravel Auth) */}
+                        {errors.email && (
+                            <div className="mb-4 px-4 py-3 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm">
+                                {errors.email}
+                            </div>
+                        )}
 
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-surface-300 mb-1.5">Email</label>
                                 <input type="email" value={data.email} onChange={e => setData('email', e.target.value)}
-                                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+                                    className={`w-full px-4 py-3 bg-white/10 border ${errors.email ? 'border-red-500' : 'border-white/20'} rounded-xl text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition`}
                                     placeholder="email@example.com" autoFocus />
-                                {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-surface-300 mb-1.5">Password</label>
-                                <input type="password" value={data.password} onChange={e => setData('password', e.target.value)}
-                                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                                    placeholder="••••••••" />
+                                <div className="relative">
+                                    <input type={showPassword ? "text" : "password"} value={data.password} onChange={e => setData('password', e.target.value)}
+                                        className={`w-full px-4 py-3 bg-white/10 border ${errors.password ? 'border-red-500' : 'border-white/20'} rounded-xl text-white placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition pr-12`}
+                                        placeholder="••••••••" />
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-white transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
+                                </div>
                                 {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
                             </div>
 

@@ -1,9 +1,10 @@
 import { Link, router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Search, ArrowUpDown, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, ArrowUpDown, X, LayoutGrid, List } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
-export function DataTable({ columns, data, pagination, filters = {}, searchPlaceholder = 'Cari...', extraFilters }) {
+export function DataTable({ columns, data, pagination, filters = {}, searchPlaceholder = 'Cari...', extraFilters, renderGridItem, defaultView = 'table' }) {
     const [search, setSearch] = useState(filters.search || '');
+    const [viewMode, setViewMode] = useState(defaultView);
 
     const handleSearch = useCallback((val) => {
         setSearch(val);
@@ -32,35 +33,57 @@ export function DataTable({ columns, data, pagination, filters = {}, searchPlace
                         {extraFilters}
                     </div>
                 )}
+                {renderGridItem && (
+                    <div className="flex bg-surface-100 rounded-lg p-1 self-start sm:self-center shrink-0">
+                        <button onClick={() => setViewMode('table')} className={`p-2 rounded-md transition-colors ${viewMode === 'table' ? 'bg-white shadow-sm text-primary-600' : 'text-surface-500 hover:text-surface-700'}`} title="Tampilan Tabel">
+                            <List size={18} />
+                        </button>
+                        <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-primary-600' : 'text-surface-500 hover:text-surface-700'}`} title="Tampilan Galeri">
+                            <LayoutGrid size={18} />
+                        </button>
+                    </div>
+                )}
             </div>
-            <div className="overflow-x-auto bg-white rounded-xl border border-surface-200">
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="border-b border-surface-200 bg-surface-50">
-                            {columns.map(col => (
-                                <th key={col.key} className="px-4 py-3 text-left text-xs font-semibold text-surface-600 uppercase tracking-wider">
-                                    {col.sortable ? (
-                                        <button onClick={() => handleSort(col.key)} className="flex items-center gap-1 hover:text-surface-900">
-                                            {col.label} <ArrowUpDown size={12} />
-                                        </button>
-                                    ) : col.label}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-surface-100">
-                        {data.length === 0 ? (
-                            <tr><td colSpan={columns.length} className="px-4 py-12 text-center text-surface-400">Tidak ada data ditemukan</td></tr>
-                        ) : data.map((row, i) => (
-                            <tr key={row.id || i} className="hover:bg-surface-50 transition-colors">
+            {viewMode === 'table' ? (
+                <div className="overflow-x-auto bg-white rounded-xl border border-surface-200">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="border-b border-surface-200 bg-surface-50">
                                 {columns.map(col => (
-                                    <td key={col.key} className="px-4 py-3 text-surface-700">{col.render ? col.render(row) : row[col.key]}</td>
+                                    <th key={col.key} className="px-4 py-3 text-left text-xs font-semibold text-surface-600 uppercase tracking-wider">
+                                        {col.sortable ? (
+                                            <button onClick={() => handleSort(col.key)} className="flex items-center gap-1 hover:text-surface-900">
+                                                {col.label} <ArrowUpDown size={12} />
+                                            </button>
+                                        ) : col.label}
+                                    </th>
                                 ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody className="divide-y divide-surface-100">
+                            {data.length === 0 ? (
+                                <tr><td colSpan={columns.length} className="px-4 py-12 text-center text-surface-400">Tidak ada data ditemukan</td></tr>
+                            ) : data.map((row, i) => (
+                                <tr key={row.id || i} className="hover:bg-surface-50 transition-colors">
+                                    {columns.map(col => (
+                                        <td key={col.key} className="px-4 py-3 text-surface-700">{col.render ? col.render(row) : row[col.key]}</td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {data.length === 0 ? (
+                        <div className="col-span-full py-12 text-center text-surface-400 bg-white rounded-xl border border-surface-200">Tidak ada data ditemukan</div>
+                    ) : data.map((row, i) => (
+                        <div key={row.id || i} className="h-full">
+                            {renderGridItem(row)}
+                        </div>
+                    ))}
+                </div>
+            )}
             {pagination && pagination.last_page > 1 && (
                 <div className="flex items-center justify-between mt-4 text-sm text-surface-600">
                     <span>Menampilkan {pagination.from}-{pagination.to} dari {pagination.total}</span>

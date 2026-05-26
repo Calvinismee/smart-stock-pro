@@ -9,7 +9,7 @@ SmartStock Pro is a comprehensive, modern inventory management system built for 
 - **Tools:** Vite, Pest PHP
 
 ## Key Features
-- **Multi-Role Authentication:** Admin, Manager, Staff, Viewer with distinct permissions.
+- **Multi-Role Authentication:** Admin, Manager, Staff, Auditor with distinct permissions.
 - **Stock Transactions & Transfers:** Atomic stock updates and warehouse-to-warehouse transfers.
 - **Low Stock Alerts:** Automatic threshold detection and internal notifications.
 - **Dynamic Dashboard:** Real-time stock trends chart and geographical warehouse mapping.
@@ -21,7 +21,7 @@ SmartStock Pro is a comprehensive, modern inventory management system built for 
 - **Stock Quantity:** Tracked per product *per warehouse* through the `inventory_stocks` pivot.
 - **Admin & Manager:** Can monitor all warehouses globally and access the main `/dashboard`.
 - **Staff (Staf Gudang):** Restricted entirely to their assigned warehouse. Uses a dedicated `/my-warehouse` operational page instead of the global dashboard. Cannot modify global product master data.
-- **Viewer:** Read-only access to `/reports` and `/inventory-stocks`.
+- **Auditor:** A read-only role intended for directors, auditors, finance, or non-operational stakeholders. Auditor can monitor inventory data, view dashboard summaries, check stock per warehouse, view product catalog, and access reports without being able to modify operational or master data.
 
 ## Installation & Setup
 
@@ -59,10 +59,10 @@ SmartStock Pro is a comprehensive, modern inventory management system built for 
 ## Demo Accounts
 
 The seeder automatically creates the following demo accounts (password: `password`):
-- **Admin:** `admin@example.com`
-- **Manager:** `manager@example.com`
-- **Staff (Warehouse 1):** `staff1@example.com`
-- **Viewer:** `viewer@example.com`
+- **Admin:** `admin@smartstock.test`
+- **Manager:** `manager@smartstock.test`
+- **Staff (Warehouse 1):** `staff@smartstock.test`
+- **Auditor:** `auditor@smartstock.test`
 
 ## Testing
 

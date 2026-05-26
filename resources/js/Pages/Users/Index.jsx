@@ -3,8 +3,8 @@ import { Head, Link } from '@inertiajs/react';
 import { DataTable, PageHeader, Badge, DeleteButton, LinkButton } from '@/Components/UI';
 import { Plus, Pencil } from 'lucide-react';
 
-const roleLabels = { admin:'Admin', manager:'Manager', staff:'Staff', viewer:'Viewer' };
-const roleColors = { admin:'primary', manager:'info', staff:'success', viewer:'warning' };
+const roleLabels = { admin:'Admin', manager:'Manager', staff:'Staff', auditor:'Auditor' };
+const roleColors = { admin:'primary', manager:'info', staff:'success', auditor:'warning' };
 
 export default function Index({ users, filters }) {
     const columns = [

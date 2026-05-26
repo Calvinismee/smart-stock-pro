@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { PageHeader } from '@/Components/UI';
 import { FileText, Download } from 'lucide-react';
 
@@ -11,6 +11,8 @@ const reports = [
 ];
 
 export default function Index() {
+    const { auth } = usePage().props;
+    const canExport = ['admin', 'manager'].includes(auth.user.role);
     return (
         <AuthenticatedLayout title="Laporan"><Head title="Laporan" />
             <PageHeader title="Laporan" subtitle="Unduh laporan dalam format PDF atau CSV" />
@@ -22,10 +24,10 @@ export default function Index() {
                             <div className="flex-1">
                                 <h3 className="font-semibold text-surface-900">{r.title}</h3>
                                 <p className="text-sm text-surface-500 mt-1">{r.desc}</p>
-                                <div className="flex gap-2 mt-3">
-                                    <a href={r.pdfUrl} className="px-3 py-1.5 bg-red-50 text-red-700 text-xs font-medium rounded-lg hover:bg-red-100 flex items-center gap-1"><Download size={12}/>PDF</a>
-                                    {r.csvUrl && <a href={r.csvUrl} className="px-3 py-1.5 bg-green-50 text-green-700 text-xs font-medium rounded-lg hover:bg-green-100 flex items-center gap-1"><Download size={12}/>CSV</a>}
-                                </div>
+                                    {canExport && <div className="flex gap-2 mt-3">
+                                        <a href={r.pdfUrl} className="px-3 py-1.5 bg-red-50 text-red-700 text-xs font-medium rounded-lg hover:bg-red-100 flex items-center gap-1"><Download size={12}/>PDF</a>
+                                        {r.csvUrl && <a href={r.csvUrl} className="px-3 py-1.5 bg-green-50 text-green-700 text-xs font-medium rounded-lg hover:bg-green-100 flex items-center gap-1"><Download size={12}/>CSV</a>}
+                                    </div>}
                             </div>
                         </div>
                     </div>

@@ -65,10 +65,10 @@ test('staff can only view assigned warehouse stock', function () {
     expect($stocks[0]['warehouse_id'])->toBe($this->warehouseA->id);
 });
 
-test('viewer can view all warehouse stock', function () {
-    $viewer = User::factory()->create(['role' => 'viewer']);
+test('auditor can view all warehouse stock', function () {
+    $auditor = User::factory()->create(['role' => 'auditor']);
     
-    $response = $this->actingAs($viewer)->get('/inventory-stocks');
+    $response = $this->actingAs($auditor)->get('/inventory-stocks');
     
     $response->assertStatus(200);
     $page = $response->viewData('page');

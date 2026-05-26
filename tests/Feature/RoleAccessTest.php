@@ -2,10 +2,10 @@
 
 use App\Models\User;
 
-test('viewer cannot access user management', function () {
-    $viewer = User::factory()->create(['role' => 'viewer']);
+test('auditor cannot access user management', function () {
+    $auditor = User::factory()->create(['role' => 'auditor']);
     
-    $this->actingAs($viewer)
+    $this->actingAs($auditor)
          ->get('/users')
          ->assertStatus(403);
 });
