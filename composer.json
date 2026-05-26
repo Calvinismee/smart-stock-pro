@@ -13,6 +13,7 @@
         "barryvdh/laravel-dompdf": "*",
         "inertiajs/inertia-laravel": "*",
         "laravel/framework": "^13.8",
+        "laravel/pulse": "*",
         "laravel/tinker": "^3.0",
         "maatwebsite/excel": "*"
     },

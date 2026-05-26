@@ -70,4 +70,19 @@ class StockTransferController extends Controller
         $stockTransfer->load(['product','sourceWarehouse','destinationWarehouse','creator']);
         return Inertia::render('StockTransfers/Show', ['transfer' => $stockTransfer]);
     }
+
+    public function receive(StockTransfer $stockTransfer)
+    {
+        $user = auth()->user();
+        if ($user->role === 'staff' && $stockTransfer->destination_warehouse_id != $user->warehouse_id) {
+            abort(403, 'Anda hanya dapat menerima barang untuk gudang yang ditugaskan kepada Anda.');
+        }
+
+        try {
+            $this->service->receive($stockTransfer, $user->id);
+            return back()->with('success', 'Barang berhasil diterima dan stok telah ditambahkan.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
 }

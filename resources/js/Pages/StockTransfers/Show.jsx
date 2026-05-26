@@ -9,7 +9,7 @@ export default function Show({ transfer }) {
             <div className="bg-white rounded-xl border border-surface-200 p-6 max-w-2xl">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                     <div><span className="text-surface-500">Kode Transfer</span><p className="font-mono font-medium">{transfer.transfer_code}</p></div>
-                    <div><span className="text-surface-500">Status</span><p><Badge color={transfer.status==='completed'?'success':'warning'}>{transfer.status}</Badge></p></div>
+                    <div><span className="text-surface-500">Status</span><p><Badge color={transfer.status==='completed'?'success':transfer.status==='in_transit'?'warning':'danger'}>{transfer.status === 'in_transit' ? 'In Transit' : transfer.status}</Badge></p></div>
                     <div><span className="text-surface-500">Produk</span><p className="font-medium">{transfer.product?.name}</p></div>
                     <div><span className="text-surface-500">Jumlah</span><p className="font-bold text-lg">{transfer.quantity}</p></div>
                     <div><span className="text-surface-500">Gudang Asal</span><p className="font-medium">{transfer.source_warehouse?.name}</p></div>

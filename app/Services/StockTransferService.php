@@ -39,7 +39,7 @@ class StockTransferService
                 'destination_warehouse_id' => $data['destination_warehouse_id'],
                 'quantity' => $data['quantity'],
                 'transfer_date' => $data['transfer_date'],
-                'status' => 'completed',
+                'status' => 'in_transit',
                 'notes' => $data['notes'] ?? null,
                 'created_by' => $userId,
             ]);
@@ -47,12 +47,38 @@ class StockTransferService
             // Decrease source stock
             $sourceStock->decrement('quantity', $data['quantity']);
 
-            // Increase destination stock
-            $destStock = InventoryStock::firstOrCreate(
-                ['product_id' => $data['product_id'], 'warehouse_id' => $data['destination_warehouse_id']],
-                ['quantity' => 0]
-            );
-            $destStock->increment('quantity', $data['quantity']);
+            // FIFO Logic: Deduct from oldest batches first
+            $qtyToDeduct = $data['quantity'];
+            $batches = \App\Models\StockBatch::where('product_id', $data['product_id'])
+                ->where('warehouse_id', $data['source_warehouse_id'])
+                ->where('remaining_quantity', '>', 0)
+                ->orderBy('arrived_at', 'asc')
+                ->lockForUpdate()
+                ->get();
+
+            $totalCost = 0;
+            foreach ($batches as $batch) {
+                if ($qtyToDeduct <= 0) break;
+
+                $deducted = min($batch->remaining_quantity, $qtyToDeduct);
+                $qtyToDeduct -= $deducted;
+                $batch->decrement('remaining_quantity', $deducted);
+                $totalCost += ($deducted * $batch->unit_cost);
+            }
+
+            if ($qtyToDeduct > 0) {
+                \App\Models\StockBatch::create([
+                    'product_id' => $data['product_id'],
+                    'warehouse_id' => $data['source_warehouse_id'],
+                    'stock_transaction_id' => null,
+                    'initial_quantity' => 0,
+                    'remaining_quantity' => -$qtyToDeduct,
+                    'unit_cost' => \App\Models\Product::find($data['product_id'])->purchase_price,
+                ]);
+            }
+
+            // Note: Destination stock is NOT incremented yet. 
+            // It will be incremented when the transfer is received.
 
             // Check minimum stock in source warehouse
             $product = Product::find($data['product_id']);
@@ -79,6 +105,46 @@ class StockTransferService
                 "Transferred {$data['quantity']} units of {$product->name} from {$sourceWarehouse->name} to {$destWarehouse->name}",
                 null,
                 $transfer->toArray()
+            );
+
+            return $transfer;
+        });
+    }
+
+    public function receive(StockTransfer $transfer, int $userId): StockTransfer
+    {
+        return DB::transaction(function () use ($transfer, $userId) {
+            if ($transfer->status !== 'in_transit') {
+                throw new \Exception('Transfer gudang tidak dalam status pengiriman (in_transit).');
+            }
+
+            // Increase destination stock
+            $destStock = InventoryStock::firstOrCreate(
+                ['product_id' => $transfer->product_id, 'warehouse_id' => $transfer->destination_warehouse_id],
+                ['quantity' => 0]
+            );
+            $destStock->increment('quantity', $transfer->quantity);
+
+            // Create new Stock Batch at destination
+            $product = \App\Models\Product::find($transfer->product_id);
+            \App\Models\StockBatch::create([
+                'product_id' => $transfer->product_id,
+                'warehouse_id' => $transfer->destination_warehouse_id,
+                'stock_transaction_id' => null,
+                'initial_quantity' => $transfer->quantity,
+                'remaining_quantity' => $transfer->quantity,
+                'unit_cost' => $product->purchase_price,
+            ]);
+
+            $transfer->update(['status' => 'completed']);
+
+            // Audit log
+            AuditLogService::log(
+                'receive',
+                'stock_transfers',
+                "Received {$transfer->quantity} units of product ID {$transfer->product_id} at destination warehouse ID {$transfer->destination_warehouse_id}",
+                null,
+                $transfer->fresh()->toArray()
             );
 
             return $transfer;

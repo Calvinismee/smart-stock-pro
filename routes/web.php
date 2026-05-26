@@ -27,7 +27,7 @@ Route::middleware('guest')->group(function () {
 });
 
 // Authenticated routes
-Route::middleware(['auth', HandleInertiaRequests::class])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // Dashboard / Root — Handles redirect based on role
@@ -104,6 +104,7 @@ Route::middleware(['auth', HandleInertiaRequests::class])->group(function () {
         Route::get('/stock-transfers', [StockTransferController::class, 'index'])->name('stock-transfers.index');
         Route::post('/stock-transfers', [StockTransferController::class, 'store'])->name('stock-transfers.store');
         Route::get('/stock-transfers/{stockTransfer}', [StockTransferController::class, 'show'])->name('stock-transfers.show');
+        Route::post('/stock-transfers/{stockTransfer}/receive', [StockTransferController::class, 'receive'])->name('stock-transfers.receive');
     });
 
     // Import — Admin, Manager

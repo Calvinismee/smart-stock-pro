@@ -37,10 +37,16 @@ test('can transfer stock between warehouses', function () {
         'quantity' => 70,
     ]);
     
+    $transfer = \App\Models\StockTransfer::first();
+    expect($transfer->status)->toBe('in_transit');
+
+    $this->post('/stock-transfers/' . $transfer->id . '/receive')->assertRedirect();
+
     $this->assertDatabaseHas('inventory_stocks', [
         'warehouse_id' => $dest->id,
         'quantity' => 30,
     ]);
+    expect($transfer->fresh()->status)->toBe('completed');
 });
 
 test('cannot transfer more than available stock', function () {

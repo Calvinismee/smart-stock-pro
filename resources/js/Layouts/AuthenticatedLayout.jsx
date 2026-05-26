@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
-import { Menu, X, LayoutDashboard, Package, Tags, Building2, Truck, Users, ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, Bell, FileText, Upload, ClipboardList, AlertTriangle, Map, LogOut, ChevronDown, Box } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Package, Tags, Building2, Truck, Users, ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, Bell, FileText, Upload, ClipboardList, AlertTriangle, Map, LogOut, ChevronDown, Box, Activity } from 'lucide-react';
 
 const navigation = {
     admin: [
@@ -18,6 +18,7 @@ const navigation = {
         { name: 'Audit Log', href: '/audit-logs', icon: ClipboardList },
         { name: 'Error Log', href: '/error-logs', icon: AlertTriangle },
         { name: 'Peta Gudang', href: '/warehouse-map', icon: Map },
+        { name: 'Server Monitor', href: '/pulse', icon: Activity, external: true },
     ],
     manager: [
         { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -75,15 +76,16 @@ export default function AuthenticatedLayout({ children, title }) {
                 <nav className="mt-4 px-3 space-y-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 4rem)' }}>
                     {navItems.map((item) => {
                         const isActive = currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href));
+                        const Component = item.external ? 'a' : Link;
                         return (
-                            <Link key={item.href} href={item.href}
+                            <Component key={item.href} href={item.href}
                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-primary-600 text-white' : 'text-surface-300 hover:bg-surface-800 hover:text-white'}`}>
                                 <item.icon size={18} />
                                 <span>{item.name}</span>
                                 {item.name === 'Notifikasi' && notifications_count > 0 && (
                                     <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">{notifications_count}</span>
                                 )}
-                            </Link>
+                            </Component>
                         );
                     })}
                 </nav>

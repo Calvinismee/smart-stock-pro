@@ -1,10 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/react';
 import { DataTable, PageHeader, Badge, FormField, Input, Select, Textarea, Modal } from '@/Components/UI';
-import { Plus, Eye } from 'lucide-react';
+import { Plus, Eye, CheckCircle2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Index({ transfers, products, sourceWarehouses, destinationWarehouses, filters }) {
+    const { auth } = usePage().props;
     const [isModalOpen, setIsModalOpen] = useState(filters.modal === 'true');
 
     const form = useForm({
@@ -35,14 +36,29 @@ export default function Index({ transfers, products, sourceWarehouses, destinati
         form.clearErrors();
     };
 
+    const handleReceive = (id) => {
+        if (confirm('Terima barang ini dan tambahkan ke stok gudang tujuan?')) {
+            router.post(`/stock-transfers/${id}/receive`);
+        }
+    };
+
     const columns = [
         { key: 'transfer_code', label: 'Kode', render: r => <span className="font-mono text-xs">{r.transfer_code}</span> },
         { key: 'product', label: 'Produk', render: r => <div><p className="font-medium">{r.product?.name}</p><p className="text-xs text-surface-500">{r.product?.sku}</p></div> },
         { key: 'route', label: 'Rute', render: r => <span className="text-sm">{r.source_warehouse?.name} → {r.destination_warehouse?.name}</span> },
         { key: 'quantity', label: 'Qty', render: r => <span className="font-bold">{r.quantity}</span> },
         { key: 'transfer_date', label: 'Tanggal', sortable: true, render: r => new Date(r.transfer_date).toLocaleDateString('id-ID') },
-        { key: 'status', label: 'Status', render: r => <Badge color={r.status==='completed'?'success':r.status==='pending'?'warning':'danger'}>{r.status}</Badge> },
-        { key: 'actions', label: '', render: r => <Link href={`/stock-transfers/${r.id}`} className="text-surface-500 hover:text-primary-600"><Eye size={16}/></Link> },
+        { key: 'status', label: 'Status', render: r => <Badge color={r.status==='completed'?'success':r.status==='in_transit'?'warning':'danger'}>{r.status === 'in_transit' ? 'In Transit' : r.status}</Badge> },
+        { key: 'actions', label: '', render: r => (
+            <div className="flex gap-2 justify-end">
+                {r.status === 'in_transit' && (['admin', 'manager'].includes(auth.user.role) || (auth.user.role === 'staff' && auth.user.warehouse_id === r.destination_warehouse_id)) && (
+                    <button onClick={() => handleReceive(r.id)} className="text-primary-600 hover:text-primary-800" title="Terima Barang">
+                        <CheckCircle2 size={16} />
+                    </button>
+                )}
+                <Link href={`/stock-transfers/${r.id}`} className="text-surface-500 hover:text-primary-600"><Eye size={16}/></Link>
+            </div>
+        )},
     ];
 
     return (

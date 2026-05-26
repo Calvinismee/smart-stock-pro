@@ -19,13 +19,21 @@ class LoginController extends Controller
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
-            'password' => ['required', 'string', 'min:6'],
+            'password' => ['required', 'string', \Illuminate\Validation\Rules\Password::defaults()],
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        $user = \App\Models\User::where('email', $request->email)->first();
+
+        if (!$user) {
             return back()->withErrors([
-                'email' => 'Email atau password salah.',
-            ]);
+                'email' => 'Akun tidak ditemukan.',
+            ])->withInput($request->only('email', 'remember'));
+        }
+
+        if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+            return back()->withErrors([
+                'password' => 'Password yang Anda masukkan salah.',
+            ])->withInput($request->only('email', 'remember'));
         }
 
         $user = Auth::user();

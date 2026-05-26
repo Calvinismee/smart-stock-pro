@@ -37,7 +37,7 @@ class UserController extends Controller
     {
         $v = $request->validate([
             'name'=>'required|string|max:255','email'=>'required|email|unique:users,email',
-            'password'=>'required|string|min:8|confirmed','role'=>'required|in:admin,manager,staff,auditor',
+            'password'=>['required','string',\Illuminate\Validation\Rules\Password::defaults(),'confirmed'],'role'=>'required|in:admin,manager,staff,auditor',
             'warehouse_id'=>'nullable|exists:warehouses,id|required_if:role,staff','is_active'=>'boolean',
         ]);
         $v['password'] = Hash::make($v['password']);
@@ -57,7 +57,7 @@ class UserController extends Controller
     {
         $v = $request->validate([
             'name'=>'required|string|max:255','email'=>"required|email|unique:users,email,{$user->id}",
-            'password'=>'nullable|string|min:8|confirmed','role'=>'required|in:admin,manager,staff,auditor',
+            'password'=>['nullable','string',\Illuminate\Validation\Rules\Password::defaults(),'confirmed'],'role'=>'required|in:admin,manager,staff,auditor',
             'warehouse_id'=>'nullable|exists:warehouses,id|required_if:role,staff','is_active'=>'boolean',
         ]);
         $old = $user->toArray();

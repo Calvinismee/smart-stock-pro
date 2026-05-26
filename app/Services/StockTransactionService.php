@@ -36,8 +36,18 @@ class StockTransactionService
             );
             $stock->increment('quantity', $data['quantity']);
 
-            // Audit log
+            // Create Stock Batch
             $product = Product::find($data['product_id']);
+            \App\Models\StockBatch::create([
+                'product_id' => $data['product_id'],
+                'warehouse_id' => $data['warehouse_id'],
+                'stock_transaction_id' => $transaction->id,
+                'initial_quantity' => $data['quantity'],
+                'remaining_quantity' => $data['quantity'],
+                'unit_cost' => $product->purchase_price,
+            ]);
+
+            // Audit log
             $warehouse = Warehouse::find($data['warehouse_id']);
             AuditLogService::log(
                 'stock_in',
@@ -82,6 +92,39 @@ class StockTransactionService
 
             // Decrease stock
             $stock->decrement('quantity', $data['quantity']);
+
+            // FIFO Logic: Deduct from oldest batches first
+            $qtyToDeduct = $data['quantity'];
+            $batches = \App\Models\StockBatch::where('product_id', $data['product_id'])
+                ->where('warehouse_id', $data['warehouse_id'])
+                ->where('remaining_quantity', '>', 0)
+                ->orderBy('arrived_at', 'asc')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($batches as $batch) {
+                if ($qtyToDeduct <= 0) break;
+
+                if ($batch->remaining_quantity <= $qtyToDeduct) {
+                    $qtyToDeduct -= $batch->remaining_quantity;
+                    $batch->update(['remaining_quantity' => 0]);
+                } else {
+                    $batch->decrement('remaining_quantity', $qtyToDeduct);
+                    $qtyToDeduct = 0;
+                }
+            }
+
+            if ($qtyToDeduct > 0) {
+                // Fallback if aggregate stock > batch stock (e.g. data anomaly)
+                \App\Models\StockBatch::create([
+                    'product_id' => $data['product_id'],
+                    'warehouse_id' => $data['warehouse_id'],
+                    'stock_transaction_id' => $transaction->id,
+                    'initial_quantity' => 0, // Anomaly batch
+                    'remaining_quantity' => -$qtyToDeduct,
+                    'unit_cost' => Product::find($data['product_id'])->purchase_price,
+                ]);
+            }
 
             // Check minimum stock threshold
             $product = Product::find($data['product_id']);

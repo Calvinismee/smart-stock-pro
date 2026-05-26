@@ -74,7 +74,7 @@ class DatabaseSeeder extends Seeder
         $users['admin'] = User::create([
             'name' => 'Admin SmartStock',
             'email' => 'admin@smartstock.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('Password123!'),
             'role' => 'admin',
             'is_active' => true,
             'email_verified_at' => now(),
@@ -83,7 +83,7 @@ class DatabaseSeeder extends Seeder
         $users['manager'] = User::create([
             'name' => 'Manager Gudang',
             'email' => 'manager@smartstock.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('Password123!'),
             'role' => 'manager',
             'is_active' => true,
             'email_verified_at' => now(),
@@ -92,7 +92,7 @@ class DatabaseSeeder extends Seeder
         $users['staff'] = User::create([
             'name' => 'Staf Gudang Jakarta',
             'email' => 'staff_jakarta@smartstock.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('Password123!'),
             'role' => 'staff',
             'warehouse_id' => $warehouses[0]->id,
             'is_active' => true,
@@ -102,7 +102,7 @@ class DatabaseSeeder extends Seeder
         $users['staff2'] = User::create([
             'name' => 'Staf Gudang Makassar',
             'email' => 'staff_makassar@smartstock.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('Password123!'),
             'role' => 'staff',
             'warehouse_id' => $warehouses[4]->id,
             'is_active' => true,
@@ -112,7 +112,7 @@ class DatabaseSeeder extends Seeder
         $users['auditor'] = User::create([
             'name' => 'Auditor',
             'email' => 'auditor@smartstock.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('Password123!'),
             'role' => 'auditor',
             'is_active' => true,
             'email_verified_at' => now(),
@@ -242,6 +242,16 @@ class DatabaseSeeder extends Seeder
                     'product_id' => $product->id,
                     'warehouse_id' => $warehouse->id,
                     'quantity' => $qty,
+                ]);
+
+                \App\Models\StockBatch::create([
+                    'product_id' => $product->id,
+                    'warehouse_id' => $warehouse->id,
+                    'stock_transaction_id' => null,
+                    'initial_quantity' => $qty,
+                    'remaining_quantity' => $qty,
+                    'unit_cost' => $product->purchase_price,
+                    'arrived_at' => now()->subDays(rand(10, 60)),
                 ]);
             }
         }
