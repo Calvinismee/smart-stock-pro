@@ -15,9 +15,9 @@ export default function Index({ warehouse, stats, lowStockItems, recentStockIns,
                     <p className="text-surface-500 text-sm mt-1">{warehouse.city} - {warehouse.address}</p>
                 </div>
                 <div className="flex gap-2">
-                    <LinkButton href="/stock-transactions/create-in"><ArrowDownToLine size={16} className="mr-1 inline"/> Masuk</LinkButton>
-                    <LinkButton href="/stock-transactions/create-out" color="danger"><ArrowUpFromLine size={16} className="mr-1 inline"/> Keluar</LinkButton>
-                    <LinkButton href="/stock-transfers/create" color="secondary"><ArrowRightLeft size={16} className="mr-1 inline"/> Transfer</LinkButton>
+                    <LinkButton href="/stock-transactions?modal=in"><ArrowDownToLine size={16} className="mr-1 inline"/> Masuk</LinkButton>
+                    <LinkButton href="/stock-transactions?modal=out" color="danger"><ArrowUpFromLine size={16} className="mr-1 inline"/> Keluar</LinkButton>
+                    <LinkButton href="/stock-transfers?modal=true" color="secondary"><ArrowRightLeft size={16} className="mr-1 inline"/> Transfer</LinkButton>
                 </div>
             </div>
 

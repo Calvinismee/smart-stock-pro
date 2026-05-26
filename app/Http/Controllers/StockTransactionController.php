@@ -30,7 +30,7 @@ class StockTransactionController extends Controller
 
         $query->orderBy($request->input('sort','created_at'), $request->input('direction','desc'));
 
-        $warehousesQuery = Warehouse::select('id','name');
+        $warehousesQuery = Warehouse::where('is_active', true)->select('id','name');
         if ($user->role === 'staff') {
             $warehousesQuery->where('id', $user->warehouse_id);
         }
@@ -38,22 +38,9 @@ class StockTransactionController extends Controller
         return Inertia::render('StockTransactions/Index', [
             'transactions' => $query->paginate(15)->withQueryString(),
             'warehouses' => $warehousesQuery->get(),
-            'filters' => $request->only(['search','type','warehouse_id','sort','direction']),
-        ]);
-    }
-
-    public function createIn()
-    {
-        $user = auth()->user();
-        $warehousesQuery = Warehouse::where('is_active',true)->select('id','name');
-        if ($user->role === 'staff') {
-            $warehousesQuery->where('id', $user->warehouse_id);
-        }
-
-        return Inertia::render('StockTransactions/CreateIn', [
-            'products' => Product::where('is_active',true)->select('id','name','sku')->get(),
-            'warehouses' => $warehousesQuery->get(),
-            'suppliers' => Supplier::select('id','name')->get(),
+            'products' => Product::where('is_active', true)->select('id', 'name', 'sku')->get(),
+            'suppliers' => Supplier::select('id', 'name')->get(),
+            'filters' => $request->only(['search','type','warehouse_id','sort','direction', 'modal']),
         ]);
     }
 
@@ -70,21 +57,7 @@ class StockTransactionController extends Controller
             abort(403, 'Anda hanya dapat mencatat barang masuk untuk gudang yang ditugaskan kepada Anda.');
         }
         $this->service->stockIn($data, auth()->id());
-        return redirect()->route('stock-transactions.index')->with('success','Barang masuk berhasil dicatat.');
-    }
-
-    public function createOut()
-    {
-        $user = auth()->user();
-        $warehousesQuery = Warehouse::where('is_active',true)->select('id','name');
-        if ($user->role === 'staff') {
-            $warehousesQuery->where('id', $user->warehouse_id);
-        }
-
-        return Inertia::render('StockTransactions/CreateOut', [
-            'products' => Product::where('is_active',true)->select('id','name','sku')->get(),
-            'warehouses' => $warehousesQuery->get(),
-        ]);
+        return back()->with('success','Barang masuk berhasil dicatat.');
     }
 
     public function storeOut(Request $request)
@@ -100,7 +73,7 @@ class StockTransactionController extends Controller
         }
         try {
             $this->service->stockOut($data, auth()->id());
-            return redirect()->route('stock-transactions.index')->with('success','Barang keluar berhasil dicatat.');
+            return back()->with('success','Barang keluar berhasil dicatat.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage())->withInput();
         }

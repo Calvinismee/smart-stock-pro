@@ -21,6 +21,7 @@ test('can transfer stock between warehouses', function () {
     ]);
 
     $response = $this->actingAs($this->admin)
+        ->from('/stock-transfers')
         ->post('/stock-transfers', [
             'product_id' => $product->id,
             'source_warehouse_id' => $source->id,
@@ -54,6 +55,7 @@ test('cannot transfer more than available stock', function () {
     ]);
 
     $response = $this->actingAs($this->admin)
+        ->from('/stock-transfers')
         ->post('/stock-transfers', [
             'product_id' => $product->id,
             'source_warehouse_id' => $source->id,

@@ -78,16 +78,13 @@ Route::middleware(['auth', HandleInertiaRequests::class])->group(function () {
     // Stock transactions
     Route::middleware([RoleMiddleware::class . ':admin,manager,staff'])->group(function () {
         Route::get('/stock-transactions', [StockTransactionController::class, 'index'])->name('stock-transactions.index');
-        Route::get('/stock-transactions/create-in', [StockTransactionController::class, 'createIn'])->name('stock-transactions.create-in');
         Route::post('/stock-transactions/store-in', [StockTransactionController::class, 'storeIn'])->name('stock-transactions.store-in');
-        Route::get('/stock-transactions/create-out', [StockTransactionController::class, 'createOut'])->name('stock-transactions.create-out');
         Route::post('/stock-transactions/store-out', [StockTransactionController::class, 'storeOut'])->name('stock-transactions.store-out');
     });
 
     // Stock transfers
     Route::middleware([RoleMiddleware::class . ':admin,manager,staff'])->group(function () {
         Route::get('/stock-transfers', [StockTransferController::class, 'index'])->name('stock-transfers.index');
-        Route::get('/stock-transfers/create', [StockTransferController::class, 'create'])->name('stock-transfers.create');
         Route::post('/stock-transfers', [StockTransferController::class, 'store'])->name('stock-transfers.store');
         Route::get('/stock-transfers/{stockTransfer}', [StockTransferController::class, 'show'])->name('stock-transfers.show');
     });

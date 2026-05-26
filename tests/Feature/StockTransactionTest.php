@@ -14,6 +14,7 @@ test('staff can record stock in', function () {
     $warehouse = Warehouse::factory()->create();
 
     $response = $this->actingAs($this->admin)
+        ->from('/stock-transactions')
         ->post('/stock-transactions/store-in', [
             'product_id' => $product->id,
             'warehouse_id' => $warehouse->id,
@@ -40,6 +41,7 @@ test('staff can record stock out if sufficient', function () {
     ]);
 
     $response = $this->actingAs($this->admin)
+        ->from('/stock-transactions')
         ->post('/stock-transactions/store-out', [
             'product_id' => $product->id,
             'warehouse_id' => $warehouse->id,
@@ -65,6 +67,7 @@ test('staff cannot record stock out if insufficient', function () {
     ]);
 
     $response = $this->actingAs($this->admin)
+        ->from('/stock-transactions')
         ->post('/stock-transactions/store-out', [
             'product_id' => $product->id,
             'warehouse_id' => $warehouse->id,

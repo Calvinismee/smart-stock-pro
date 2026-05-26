@@ -28,26 +28,21 @@ class StockTransferController extends Controller
         }
         $query->orderBy($request->input('sort','created_at'), $request->input('direction','desc'));
 
-        return Inertia::render('StockTransfers/Index', [
-            'transfers' => $query->paginate(15)->withQueryString(),
-            'filters' => $request->only(['search','sort','direction']),
-        ]);
-    }
-
-    public function create()
-    {
-        $user = auth()->user();
         $sourceWarehousesQuery = Warehouse::where('is_active',true)->select('id','name');
         if ($user->role === 'staff') {
             $sourceWarehousesQuery->where('id', $user->warehouse_id);
         }
 
-        return Inertia::render('StockTransfers/Create', [
+        return Inertia::render('StockTransfers/Index', [
+            'transfers' => $query->paginate(15)->withQueryString(),
+            'filters' => $request->only(['search','sort','direction','modal']),
             'products' => Product::where('is_active',true)->select('id','name','sku')->get(),
             'sourceWarehouses' => $sourceWarehousesQuery->get(),
             'destinationWarehouses' => Warehouse::where('is_active',true)->select('id','name')->get(),
         ]);
     }
+
+
 
     public function store(Request $request)
     {
@@ -64,7 +59,7 @@ class StockTransferController extends Controller
         }
         try {
             $this->service->transfer($data, auth()->id());
-            return redirect()->route('stock-transfers.index')->with('success','Transfer gudang berhasil.');
+            return back()->with('success','Transfer gudang berhasil.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage())->withInput();
         }

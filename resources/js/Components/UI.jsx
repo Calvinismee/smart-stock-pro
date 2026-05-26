@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Search, ArrowUpDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, ArrowUpDown, X } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
 export function DataTable({ columns, data, pagination, filters = {}, searchPlaceholder = 'Cari...', extraFilters }) {
@@ -164,4 +164,24 @@ export function LinkButton({ href, children, color = 'primary' }) {
         primary: 'bg-primary-600 hover:bg-primary-700 text-white', secondary: 'bg-surface-100 hover:bg-surface-200 text-surface-700',
     };
     return <Link href={href} className={`px-4 py-2.5 font-medium rounded-xl text-sm transition ${colors[color]}`}>{children}</Link>;
+}
+
+export function Modal({ isOpen, onClose, title, children }) {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+            <div className="relative bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+                {title && (
+                    <div className="flex items-center justify-between p-4 border-b border-surface-200">
+                        <h3 className="text-lg font-bold text-surface-900">{title}</h3>
+                        <button type="button" onClick={onClose} className="text-surface-400 hover:text-surface-900"><X size={20} /></button>
+                    </div>
+                )}
+                <div className="p-6 overflow-y-auto">
+                    {children}
+                </div>
+            </div>
+        </div>
+    );
 }
