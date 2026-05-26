@@ -87,12 +87,15 @@ class StockTransactionService
             $product = Product::find($data['product_id']);
             $warehouse = Warehouse::find($data['warehouse_id']);
 
-            if ($stock->fresh()->quantity <= $product->minimum_stock) {
+            $freshStock = $stock->fresh();
+            $minStock = $freshStock->minimum_stock > 0 ? $freshStock->minimum_stock : $product->minimum_stock;
+
+            if ($freshStock->quantity <= $minStock) {
                 NotificationService::lowStockAlert(
                     $product->name,
                     $warehouse->name,
-                    $stock->fresh()->quantity,
-                    $product->minimum_stock,
+                    $freshStock->quantity,
+                    $minStock,
                     $product->id,
                 );
             }

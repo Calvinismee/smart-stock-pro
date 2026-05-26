@@ -91,10 +91,20 @@ class DatabaseSeeder extends Seeder
 
         $users['staff'] = User::create([
             'name' => 'Staf Gudang Jakarta',
-            'email' => 'staff@smartstock.test',
+            'email' => 'staff_jakarta@smartstock.test',
             'password' => Hash::make('password'),
             'role' => 'staff',
             'warehouse_id' => $warehouses[0]->id,
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $users['staff2'] = User::create([
+            'name' => 'Staf Gudang Makassar',
+            'email' => 'staff_makassar@smartstock.test',
+            'password' => Hash::make('password'),
+            'role' => 'staff',
+            'warehouse_id' => $warehouses[4]->id,
             'is_active' => true,
             'email_verified_at' => now(),
         ]);

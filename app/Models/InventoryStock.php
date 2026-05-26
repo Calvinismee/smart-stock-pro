@@ -14,6 +14,7 @@ class InventoryStock extends Model
         'product_id',
         'warehouse_id',
         'quantity',
+        'minimum_stock',
     ];
 
     protected function casts(): array

@@ -42,6 +42,12 @@ class LoginController extends Controller
 
         AuditLogService::log('login', 'auth', "User {$user->name} logged in");
 
+        if ($user->role === 'staff') {
+            return redirect()->route('my-warehouse');
+        } elseif ($user->role === 'viewer') {
+            return redirect()->route('reports.index');
+        }
+
         return redirect()->intended(route('dashboard'));
     }
 

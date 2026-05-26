@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
-import { Menu, X, LayoutDashboard, Package, Tags, Building2, Truck, Users, ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, Bell, FileText, Upload, ClipboardList, AlertTriangle, Map, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Package, Tags, Building2, Truck, Users, ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, Bell, FileText, Upload, ClipboardList, AlertTriangle, Map, LogOut, ChevronDown, Box } from 'lucide-react';
 
 const navigation = {
     admin: [
         { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-        { name: 'Produk', href: '/products', icon: Package },
+        { name: 'Produk & Stok', href: '/products', icon: Package },
         { name: 'Kategori', href: '/categories', icon: Tags },
         { name: 'Gudang', href: '/warehouses', icon: Building2 },
         { name: 'Supplier', href: '/suppliers', icon: Truck },
@@ -23,7 +23,7 @@ const navigation = {
     ],
     manager: [
         { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-        { name: 'Produk', href: '/products', icon: Package },
+        { name: 'Produk & Stok', href: '/products', icon: Package },
         { name: 'Kategori', href: '/categories', icon: Tags },
         { name: 'Gudang', href: '/warehouses', icon: Building2 },
         { name: 'Supplier', href: '/suppliers', icon: Truck },
@@ -37,8 +37,8 @@ const navigation = {
         { name: 'Peta Gudang', href: '/warehouse-map', icon: Map },
     ],
     staff: [
-        { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-        { name: 'Produk', href: '/products', icon: Package },
+        { name: 'My Warehouse', href: '/my-warehouse', icon: Building2 },
+        { name: 'Monitoring Stok', href: '/inventory-stocks', icon: Box },
         { name: 'Barang Masuk', href: '/stock-transactions/create-in', icon: ArrowDownToLine },
         { name: 'Barang Keluar', href: '/stock-transactions/create-out', icon: ArrowUpFromLine },
         { name: 'Transaksi Stok', href: '/stock-transactions', icon: ClipboardList },
@@ -46,8 +46,8 @@ const navigation = {
         { name: 'Notifikasi', href: '/notifications', icon: Bell },
     ],
     viewer: [
-        { name: 'Dashboard', href: '/', icon: LayoutDashboard },
         { name: 'Laporan', href: '/reports', icon: FileText },
+        { name: 'Monitoring Stok', href: '/inventory-stocks', icon: Box },
         { name: 'Peta Gudang', href: '/warehouse-map', icon: Map },
     ],
 };

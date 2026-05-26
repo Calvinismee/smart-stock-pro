@@ -19,6 +19,13 @@ class StockTransferController extends Controller
         if ($s = $request->input('search')) {
             $query->where(fn($q)=>$q->where('transfer_code','ilike',"%{$s}%")->orWhereHas('product',fn($q2)=>$q2->where('name','ilike',"%{$s}%")));
         }
+        $user = auth()->user();
+        if ($user->role === 'staff') {
+            $query->where(function($q) use ($user) {
+                $q->where('source_warehouse_id', $user->warehouse_id)
+                  ->orWhere('destination_warehouse_id', $user->warehouse_id);
+            });
+        }
         $query->orderBy($request->input('sort','created_at'), $request->input('direction','desc'));
 
         return Inertia::render('StockTransfers/Index', [
@@ -29,9 +36,16 @@ class StockTransferController extends Controller
 
     public function create()
     {
+        $user = auth()->user();
+        $sourceWarehousesQuery = Warehouse::where('is_active',true)->select('id','name');
+        if ($user->role === 'staff') {
+            $sourceWarehousesQuery->where('id', $user->warehouse_id);
+        }
+
         return Inertia::render('StockTransfers/Create', [
             'products' => Product::where('is_active',true)->select('id','name','sku')->get(),
-            'warehouses' => Warehouse::where('is_active',true)->select('id','name')->get(),
+            'sourceWarehouses' => $sourceWarehousesQuery->get(),
+            'destinationWarehouses' => Warehouse::where('is_active',true)->select('id','name')->get(),
         ]);
     }
 
@@ -43,6 +57,11 @@ class StockTransferController extends Controller
             'destination_warehouse_id'=>'required|exists:warehouses,id|different:source_warehouse_id',
             'quantity'=>'required|integer|min:1','transfer_date'=>'required|date','notes'=>'nullable|string',
         ]);
+        
+        $user = auth()->user();
+        if ($user->role === 'staff' && $data['source_warehouse_id'] != $user->warehouse_id) {
+            abort(403, 'Anda hanya dapat melakukan transfer dari gudang yang ditugaskan kepada Anda.');
+        }
         try {
             $this->service->transfer($data, auth()->id());
             return redirect()->route('stock-transfers.index')->with('success','Transfer gudang berhasil.');

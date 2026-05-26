@@ -2,7 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, Search, ArrowUpDown } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
-export function DataTable({ columns, data, pagination, filters = {}, searchPlaceholder = 'Cari...' }) {
+export function DataTable({ columns, data, pagination, filters = {}, searchPlaceholder = 'Cari...', extraFilters }) {
     const [search, setSearch] = useState(filters.search || '');
 
     const handleSearch = useCallback((val) => {
@@ -20,13 +20,18 @@ export function DataTable({ columns, data, pagination, filters = {}, searchPlace
 
     return (
         <div>
-            <div className="mb-4">
-                <div className="relative">
+            <div className="mb-4 flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400" />
                     <input type="text" value={search} onChange={e => handleSearch(e.target.value)}
                         className="w-full sm:w-72 pl-10 pr-4 py-2.5 border border-surface-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         placeholder={searchPlaceholder} />
                 </div>
+                {extraFilters && (
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        {extraFilters}
+                    </div>
+                )}
             </div>
             <div className="overflow-x-auto bg-white rounded-xl border border-surface-200">
                 <table className="w-full text-sm">

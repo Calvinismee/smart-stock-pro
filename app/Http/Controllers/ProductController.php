@@ -14,8 +14,14 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category:id,name', 'supplier:id,name'])
-            ->withSum('inventoryStocks', 'quantity');
+        $query = Product::with(['category:id,name', 'supplier:id,name']);
+
+        $warehouseId = $request->input('warehouse_id');
+        $query->withSum(['inventoryStocks' => function($q) use ($warehouseId) {
+            if ($warehouseId) {
+                $q->where('warehouse_id', $warehouseId);
+            }
+        }], 'quantity');
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
@@ -41,12 +47,17 @@ class ProductController extends Controller
         return Inertia::render('Products/Index', [
             'products' => $products,
             'categories' => Category::select('id', 'name')->get(),
-            'filters' => $request->only(['search', 'category_id', 'is_active', 'sort', 'direction']),
+            'warehouses' => \App\Models\Warehouse::where('is_active', true)->select('id', 'name')->get(),
+            'filters' => $request->only(['search', 'category_id', 'is_active', 'warehouse_id', 'sort', 'direction']),
         ]);
     }
 
     public function create()
     {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
+            abort(403, 'Akses ditolak.');
+        }
+
         return Inertia::render('Products/Create', [
             'categories' => Category::select('id', 'name')->get(),
             'suppliers' => Supplier::select('id', 'name')->get(),
@@ -55,6 +66,10 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
+            abort(403, 'Akses ditolak.');
+        }
+
         $validated = $request->validate([
             'sku' => ['required', 'string', 'max:50', 'unique:products,sku'],
             'name' => ['required', 'string', 'max:255'],
@@ -91,6 +106,10 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
+            abort(403, 'Akses ditolak.');
+        }
+
         return Inertia::render('Products/Edit', [
             'product' => $product,
             'categories' => Category::select('id', 'name')->get(),
@@ -100,6 +119,10 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
+            abort(403, 'Akses ditolak.');
+        }
+
         $validated = $request->validate([
             'sku' => ['required', 'string', 'max:50', "unique:products,sku,{$product->id}"],
             'name' => ['required', 'string', 'max:255'],
@@ -132,6 +155,10 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Hanya Admin yang dapat menghapus produk.');
+        }
+
         $oldValues = $product->toArray();
         $name = $product->name;
 

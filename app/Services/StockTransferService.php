@@ -59,12 +59,15 @@ class StockTransferService
             $sourceWarehouse = Warehouse::find($data['source_warehouse_id']);
             $destWarehouse = Warehouse::find($data['destination_warehouse_id']);
 
-            if ($sourceStock->fresh()->quantity <= $product->minimum_stock) {
+            $freshStock = $sourceStock->fresh();
+            $minStock = $freshStock->minimum_stock > 0 ? $freshStock->minimum_stock : $product->minimum_stock;
+
+            if ($freshStock->quantity <= $minStock) {
                 NotificationService::lowStockAlert(
                     $product->name,
                     $sourceWarehouse->name,
-                    $sourceStock->fresh()->quantity,
-                    $product->minimum_stock,
+                    $freshStock->quantity,
+                    $minStock,
                     $product->id,
                 );
             }

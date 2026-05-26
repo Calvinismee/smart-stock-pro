@@ -14,6 +14,8 @@ use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\InventoryStockController;
+use App\Http\Controllers\MyWarehouseController;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -28,8 +30,16 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', HandleInertiaRequests::class])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    // Dashboard — all authenticated users
+    // Dashboard / Root — Handles redirect based on role
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // My Warehouse — Staff (and potentially admin/manager)
+    Route::middleware([RoleMiddleware::class . ':admin,manager,staff'])->group(function () {
+        Route::get('/my-warehouse', [MyWarehouseController::class, 'index'])->name('my-warehouse');
+    });
+
+    // Inventory Stocks — All roles
+    Route::get('/inventory-stocks', [InventoryStockController::class, 'index'])->name('inventory-stocks.index');
 
     // Notifications — all authenticated users
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -49,8 +59,8 @@ Route::middleware(['auth', HandleInertiaRequests::class])->group(function () {
         return \Inertia\Inertia::render('WarehouseMap', ['warehouses' => $warehouses]);
     })->name('warehouse-map');
 
-    // Admin, Manager, Staff can manage products
-    Route::middleware([RoleMiddleware::class . ':admin,manager,staff'])->group(function () {
+    // Admin, Manager can manage products
+    Route::middleware([RoleMiddleware::class . ':admin,manager'])->group(function () {
         Route::resource('products', ProductController::class);
     });
 

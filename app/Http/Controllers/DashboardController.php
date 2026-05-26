@@ -16,6 +16,14 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+        
+        if ($user && $user->role === 'staff') {
+            return redirect()->route('my-warehouse');
+        } elseif ($user && $user->role === 'viewer') {
+            return redirect()->route('reports.index');
+        }
+
         $stats = [
             'total_products' => Product::where('is_active', true)->count(),
             'total_categories' => Category::count(),

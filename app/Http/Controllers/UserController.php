@@ -38,7 +38,7 @@ class UserController extends Controller
         $v = $request->validate([
             'name'=>'required|string|max:255','email'=>'required|email|unique:users,email',
             'password'=>'required|string|min:8|confirmed','role'=>'required|in:admin,manager,staff,viewer',
-            'warehouse_id'=>'nullable|exists:warehouses,id','is_active'=>'boolean',
+            'warehouse_id'=>'nullable|exists:warehouses,id|required_if:role,staff','is_active'=>'boolean',
         ]);
         $v['password'] = Hash::make($v['password']);
         $user = User::create($v);
@@ -58,7 +58,7 @@ class UserController extends Controller
         $v = $request->validate([
             'name'=>'required|string|max:255','email'=>"required|email|unique:users,email,{$user->id}",
             'password'=>'nullable|string|min:8|confirmed','role'=>'required|in:admin,manager,staff,viewer',
-            'warehouse_id'=>'nullable|exists:warehouses,id','is_active'=>'boolean',
+            'warehouse_id'=>'nullable|exists:warehouses,id|required_if:role,staff','is_active'=>'boolean',
         ]);
         $old = $user->toArray();
         if(!empty($v['password'])){$v['password']=Hash::make($v['password']);}else{unset($v['password']);}
