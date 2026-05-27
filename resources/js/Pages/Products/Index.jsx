@@ -78,21 +78,14 @@ export default function Index({ products, categories, warehouses, filters }) {
     );
 
     return (
-        <AuthenticatedLayout title="Katalog Produk">
-            <Head title="Produk" />
+        <AuthenticatedLayout title="Produk & Stok">
+            <Head title="Produk & Stok" />
 
-            <div className="border-b border-surface-200 mb-6">
-                <nav className="-mb-px flex gap-6">
-                    <Link href="/products" className={`py-4 px-1 inline-flex items-center gap-2 border-b-2 font-medium text-sm border-primary-500 text-primary-600`}>
-                        <Package size={18} /> Master Produk
-                    </Link>
-                    <Link href="/inventory-stocks" className={`py-4 px-1 inline-flex items-center gap-2 border-b-2 font-medium text-sm border-transparent text-surface-500 hover:text-surface-700 hover:border-surface-300`}>
-                        <Box size={18} /> Monitoring Stok
-                    </Link>
-                </nav>
-            </div>
-
-            <PageHeader title="Master Produk" subtitle={`${products.total} produk terdaftar`} actions={canMutate && <LinkButton href="/products/create"><Plus size={16} className="inline mr-1 -mt-0.5"/>Tambah Produk</LinkButton>} />
+            <PageHeader 
+                title="Katalog Produk & Stok" 
+                subtitle={`${products.total} produk terdaftar dengan informasi ketersediaan stok aktual.`} 
+                actions={canMutate && <LinkButton href="/products/create"><Plus size={16} className="inline mr-1 -mt-0.5"/>Tambah Produk</LinkButton>} 
+            />
             <DataTable 
                 columns={columns} 
                 data={products.data} 

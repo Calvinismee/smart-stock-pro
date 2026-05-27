@@ -36,7 +36,7 @@ class StockTransferController extends Controller
         return Inertia::render('StockTransfers/Index', [
             'transfers' => $query->paginate(15)->withQueryString(),
             'filters' => $request->only(['search','sort','direction','modal']),
-            'products' => Product::where('is_active',true)->select('id','name','sku')->get(),
+            'products' => Product::where('is_active',true)->select('id','name','sku')->with('inventoryStocks:id,product_id,warehouse_id,quantity')->orderBy('name', 'asc')->get(),
             'sourceWarehouses' => $sourceWarehousesQuery->get(),
             'destinationWarehouses' => Warehouse::where('is_active',true)->select('id','name')->get(),
         ]);

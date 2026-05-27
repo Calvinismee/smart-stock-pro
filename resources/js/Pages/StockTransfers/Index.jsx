@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 export default function Index({ transfers, products, sourceWarehouses, destinationWarehouses, filters }) {
     const { auth } = usePage().props;
     const [isModalOpen, setIsModalOpen] = useState(filters.modal === 'true');
+    const [receiveModalId, setReceiveModalId] = useState(null);
 
     const form = useForm({
         product_id: '',
@@ -36,9 +37,19 @@ export default function Index({ transfers, products, sourceWarehouses, destinati
         form.clearErrors();
     };
 
+    // Calculate available stock for transfer
+    const selectedProduct = products?.find(p => String(p.id) === String(form.data.product_id));
+    const availableStock = selectedProduct?.inventory_stocks?.find(s => String(s.warehouse_id) === String(form.data.source_warehouse_id))?.quantity || 0;
+
     const handleReceive = (id) => {
-        if (confirm('Terima barang ini dan tambahkan ke stok gudang tujuan?')) {
-            router.post(`/stock-transfers/${id}/receive`);
+        setReceiveModalId(id);
+    };
+
+    const confirmReceive = () => {
+        if (receiveModalId) {
+            router.post(`/stock-transfers/${receiveModalId}/receive`, {}, {
+                onSuccess: () => setReceiveModalId(null)
+            });
         }
     };
 
@@ -87,7 +98,10 @@ export default function Index({ transfers, products, sourceWarehouses, destinati
                             <Select value={form.data.destination_warehouse_id} onChange={e=>form.setData('destination_warehouse_id',e.target.value)} options={destinationWarehouses?.filter(w=>w.id!=form.data.source_warehouse_id).map(w=>({value:w.id,label:w.name}))} placeholder="Pilih gudang tujuan"/>
                         </FormField>
                         <FormField label="Jumlah *" error={form.errors.quantity}>
-                            <Input type="number" min="1" value={form.data.quantity} onChange={e=>form.setData('quantity',e.target.value)}/>
+                            <Input type="number" min="1" max={availableStock} value={form.data.quantity} onChange={e=>form.setData('quantity',e.target.value)}/>
+                            {form.data.product_id && form.data.source_warehouse_id && (
+                                <p className="text-xs text-surface-500 mt-1">Stok di gudang asal: {availableStock}</p>
+                            )}
                         </FormField>
                         <FormField label="Tanggal *" error={form.errors.transfer_date}>
                             <Input type="date" value={form.data.transfer_date} onChange={e=>form.setData('transfer_date',e.target.value)}/>
@@ -107,6 +121,23 @@ export default function Index({ transfers, products, sourceWarehouses, destinati
                         </button>
                     </div>
                 </form>
+            </Modal>
+
+            {/* Receive Confirmation Modal */}
+            <Modal isOpen={receiveModalId !== null} onClose={() => setReceiveModalId(null)} title="Konfirmasi Terima Barang">
+                <div className="p-2">
+                    <p className="text-surface-600 mb-6">
+                        Apakah Anda yakin ingin menerima barang ini? Proses ini akan secara permanen menambahkan stok ke gudang tujuan Anda dan mengubah status transfer menjadi <span className="font-semibold text-green-600">Selesai (Completed)</span>.
+                    </p>
+                    <div className="flex gap-3 justify-end pt-4 border-t border-surface-200">
+                        <button type="button" onClick={() => setReceiveModalId(null)} className="px-5 py-2.5 border border-surface-200 text-surface-700 hover:bg-surface-50 font-medium rounded-xl transition">
+                            Batal
+                        </button>
+                        <button type="button" onClick={confirmReceive} className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl transition">
+                            Ya, Terima Barang
+                        </button>
+                    </div>
+                </div>
             </Modal>
         </AuthenticatedLayout>
     );

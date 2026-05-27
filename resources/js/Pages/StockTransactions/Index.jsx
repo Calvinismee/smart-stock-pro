@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 export default function Index({ transactions, warehouses, products, suppliers, filters }) {
     const [modalType, setModalType] = useState(filters.modal || null);
 
-    const formIn = useForm({ product_id: '', warehouse_id: warehouses.length === 1 ? warehouses[0].id : '', supplier_id: '', quantity: '', transaction_date: new Date().toISOString().split('T')[0], notes: '' });
+    const formIn = useForm({ product_id: '', warehouse_id: warehouses.length === 1 ? warehouses[0].id : '', quantity: '', transaction_date: new Date().toISOString().split('T')[0], notes: '' });
     const formOut = useForm({ product_id: '', warehouse_id: warehouses.length === 1 ? warehouses[0].id : '', quantity: '', transaction_date: new Date().toISOString().split('T')[0], notes: '' });
 
     useEffect(() => {
@@ -33,6 +33,14 @@ export default function Index({ transactions, warehouses, products, suppliers, f
         formIn.clearErrors();
         formOut.clearErrors();
     };
+
+    // Calculate available stock for formOut
+    const selectedProductOut = products?.find(p => String(p.id) === String(formOut.data.product_id));
+    const availableStockOut = selectedProductOut?.inventory_stocks?.find(s => String(s.warehouse_id) === String(formOut.data.warehouse_id))?.quantity || 0;
+    
+    // Calculate available stock for formIn
+    const selectedProductIn = products?.find(p => String(p.id) === String(formIn.data.product_id));
+    const availableStockIn = selectedProductIn?.inventory_stocks?.find(s => String(s.warehouse_id) === String(formIn.data.warehouse_id))?.quantity || 0;
 
     const columns = [
         { key: 'transaction_code', label: 'Kode', render: r => <span className="font-mono text-xs">{r.transaction_code}</span> },
@@ -69,8 +77,13 @@ export default function Index({ transactions, warehouses, products, suppliers, f
                         {warehouses.length > 1 && (
                             <FormField label="Gudang *" error={formIn.errors.warehouse_id}><Select value={formIn.data.warehouse_id} onChange={e=>formIn.setData('warehouse_id',e.target.value)} options={warehouses.map(w=>({value:w.id,label:w.name}))} placeholder="Pilih gudang"/></FormField>
                         )}
-                        <FormField label="Supplier" error={formIn.errors.supplier_id}><Select value={formIn.data.supplier_id} onChange={e=>formIn.setData('supplier_id',e.target.value)} options={suppliers?.map(s=>({value:s.id,label:s.name}))} placeholder="Pilih supplier"/></FormField>
-                        <FormField label="Jumlah *" error={formIn.errors.quantity}><Input type="number" min="1" value={formIn.data.quantity} onChange={e=>formIn.setData('quantity',e.target.value)}/></FormField>
+
+                        <FormField label="Jumlah *" error={formIn.errors.quantity}>
+                            <Input type="number" min="1" value={formIn.data.quantity} onChange={e=>formIn.setData('quantity',e.target.value)}/>
+                            {formIn.data.product_id && formIn.data.warehouse_id && (
+                                <p className="text-xs text-surface-500 mt-1">Stok saat ini: {availableStockIn}</p>
+                            )}
+                        </FormField>
                         <FormField label="Tanggal *" error={formIn.errors.transaction_date}><Input type="date" value={formIn.data.transaction_date} onChange={e=>formIn.setData('transaction_date',e.target.value)}/></FormField>
                     </div>
                     <FormField label="Catatan"><Textarea value={formIn.data.notes} onChange={e=>formIn.setData('notes',e.target.value)}/></FormField>
@@ -93,7 +106,12 @@ export default function Index({ transactions, warehouses, products, suppliers, f
                         {warehouses.length > 1 && (
                             <FormField label="Gudang *" error={formOut.errors.warehouse_id}><Select value={formOut.data.warehouse_id} onChange={e=>formOut.setData('warehouse_id',e.target.value)} options={warehouses.map(w=>({value:w.id,label:w.name}))} placeholder="Pilih gudang"/></FormField>
                         )}
-                        <FormField label="Jumlah *" error={formOut.errors.quantity}><Input type="number" min="1" value={formOut.data.quantity} onChange={e=>formOut.setData('quantity',e.target.value)}/></FormField>
+                        <FormField label="Jumlah *" error={formOut.errors.quantity}>
+                            <Input type="number" min="1" max={availableStockOut} value={formOut.data.quantity} onChange={e=>formOut.setData('quantity',e.target.value)}/>
+                            {formOut.data.product_id && formOut.data.warehouse_id && (
+                                <p className="text-xs text-surface-500 mt-1">Stok tersedia: {availableStockOut}</p>
+                            )}
+                        </FormField>
                         <FormField label="Tanggal *" error={formOut.errors.transaction_date}><Input type="date" value={formOut.data.transaction_date} onChange={e=>formOut.setData('transaction_date',e.target.value)}/></FormField>
                     </div>
                     <FormField label="Catatan"><Textarea value={formOut.data.notes} onChange={e=>formOut.setData('notes',e.target.value)}/></FormField>

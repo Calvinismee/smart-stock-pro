@@ -77,8 +77,16 @@ class StockTransferService
                 ]);
             }
 
-            // Note: Destination stock is NOT incremented yet. 
-            // It will be incremented when the transfer is received.
+            // Notify destination warehouse
+            NotificationService::create(
+                type: 'transfer_incoming',
+                title: 'Transfer Barang Masuk',
+                message: "Terdapat transfer masuk ({$code}) sejumlah {$data['quantity']} unit untuk produk ID {$data['product_id']}.",
+                severity: 'info',
+                relatedType: 'transfer',
+                relatedId: $transfer->id,
+                warehouseId: $data['destination_warehouse_id']
+            );
 
             // Check minimum stock in source warehouse
             $product = Product::find($data['product_id']);
@@ -95,6 +103,7 @@ class StockTransferService
                     $freshStock->quantity,
                     $minStock,
                     $product->id,
+                    $sourceWarehouse->id
                 );
             }
 
@@ -137,6 +146,17 @@ class StockTransferService
             ]);
 
             $transfer->update(['status' => 'completed']);
+            
+            // Notify source warehouse that the transfer has been received
+            NotificationService::create(
+                type: 'transfer_completed',
+                title: 'Transfer Selesai Diterima',
+                message: "Transfer ({$transfer->transfer_code}) sejumlah {$transfer->quantity} unit telah sukses diterima oleh gudang tujuan.",
+                severity: 'info',
+                relatedType: 'transfer',
+                relatedId: $transfer->id,
+                warehouseId: $transfer->source_warehouse_id
+            );
 
             // Audit log
             AuditLogService::log(

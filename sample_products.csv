@@ -1,0 +1,5 @@
+sku,name,category,supplier,unit,purchase_price,selling_price,minimum_stock,description
+SKU-TEST-01,Laptop Asus ROG,Laptop,PT Asusindo,Pcs,15000000,18000000,5,Laptop gaming terbaru
+SKU-TEST-02,Mouse Logitech G502,Aksesoris,PT Logitech,Pcs,500000,750000,20,Mouse gaming responsif
+SKU-TEST-03,Keyboard Mechanical,Aksesoris,,Pcs,300000,450000,15,Keyboard RGB mekanik
+SKU-TEST-04,Monitor Dell 27 Inch,Monitor,PT Dell,Pcs,3500000,4200000,10,Monitor IPS 144Hz

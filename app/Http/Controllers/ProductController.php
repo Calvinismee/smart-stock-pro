@@ -100,6 +100,15 @@ class ProductController extends Controller
 
         $product = Product::create($validated);
 
+        \App\Services\NotificationService::create(
+            type: 'new_product',
+            title: 'Produk Baru Ditambahkan',
+            message: "Produk baru telah didaftarkan ke sistem: {$product->name} (SKU: {$product->sku})",
+            severity: 'info',
+            relatedType: 'product',
+            relatedId: $product->id
+        );
+
         AuditLogService::log('create', 'products', "Created product: {$product->name}", null, $product->toArray());
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan.');

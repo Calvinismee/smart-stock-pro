@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
-import { Menu, X, LayoutDashboard, Package, Tags, Building2, Truck, Users, ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, Bell, FileText, Upload, ClipboardList, AlertTriangle, Map, LogOut, ChevronDown, Box, Activity } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Package, Tags, Building2, Truck, Users, ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, Bell, FileText, Upload, ClipboardList, AlertTriangle, Map, LogOut, ChevronDown, Box, Activity, Info, CheckCircle } from 'lucide-react';
 
 const navigation = {
     admin: [
@@ -35,7 +35,7 @@ const navigation = {
     ],
     staff: [
         { name: 'My Warehouse', href: '/my-warehouse', icon: Building2 },
-        { name: 'Monitoring Stok', href: '/inventory-stocks', icon: Box },
+        { name: 'Produk & Stok', href: '/products', icon: Package },
         { name: 'Transaksi Stok', href: '/stock-transactions', icon: ClipboardList },
         { name: 'Transfer Gudang', href: '/stock-transfers', icon: ArrowLeftRight },
         { name: 'Notifikasi', href: '/notifications', icon: Bell },
@@ -43,7 +43,6 @@ const navigation = {
     viewer: [
         { name: 'Dashboard', href: '/', icon: LayoutDashboard },
         { name: 'Produk & Stok', href: '/products', icon: Package },
-        { name: 'Monitoring Stok', href: '/inventory-stocks', icon: Box },
         { name: 'Laporan', href: '/reports', icon: FileText },
         { name: 'Peta Gudang', href: '/warehouse-map', icon: Map },
     ],
@@ -58,6 +57,30 @@ export default function AuthenticatedLayout({ children, title }) {
     const user = auth.user;
     const navItems = navigation[user.role] || navigation.viewer;
     const currentPath = window.location.pathname;
+
+    const [realtimeNotification, setRealtimeNotification] = useState(null);
+    const [realtimeCount, setRealtimeCount] = useState(0);
+
+    useEffect(() => {
+        if (window.Echo && user) {
+            window.Echo.private(`App.Models.User.${user.id}`)
+                .listen('LowStockAlertEvent', (e) => {
+                    setRealtimeNotification(e);
+                    setRealtimeCount(prev => prev + 1);
+                    // Auto-hide toast after 5 seconds
+                    setTimeout(() => {
+                        setRealtimeNotification(null);
+                    }, 5000);
+                });
+        }
+        return () => {
+            if (window.Echo && user) {
+                window.Echo.leave(`App.Models.User.${user.id}`);
+            }
+        };
+    }, [user]);
+
+    const displayCount = notifications_count + realtimeCount;
 
     return (
         <div className="min-h-screen bg-surface-50 flex">
@@ -82,8 +105,8 @@ export default function AuthenticatedLayout({ children, title }) {
                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-primary-600 text-white' : 'text-surface-300 hover:bg-surface-800 hover:text-white'}`}>
                                 <item.icon size={18} />
                                 <span>{item.name}</span>
-                                {item.name === 'Notifikasi' && notifications_count > 0 && (
-                                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">{notifications_count}</span>
+                                {item.name === 'Notifikasi' && displayCount > 0 && (
+                                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">{displayCount}</span>
                                 )}
                             </Component>
                         );
@@ -102,7 +125,7 @@ export default function AuthenticatedLayout({ children, title }) {
                     <div className="flex items-center gap-4">
                         <Link href="/notifications" className="relative text-surface-500 hover:text-surface-700">
                             <Bell size={20} />
-                            {notifications_count > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{notifications_count}</span>}
+                            {displayCount > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{displayCount}</span>}
                         </Link>
                         <div className="relative">
                             <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="flex items-center gap-2 text-sm">
@@ -134,6 +157,24 @@ export default function AuthenticatedLayout({ children, title }) {
                 )}
                 {flash?.error && (
                     <div className="mx-4 lg:mx-6 mt-4 px-4 py-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">{flash.error}</div>
+                )}
+                
+                {/* Real-time WebSocket Toast */}
+                {realtimeNotification && (
+                    <div className="fixed bottom-4 right-4 z-50 animate-bounce">
+                        <div className={`bg-white border-l-4 shadow-xl rounded-lg p-4 flex gap-4 max-w-sm ${realtimeNotification.severity === 'critical' ? 'border-red-500' : realtimeNotification.severity === 'warning' ? 'border-amber-500' : 'border-blue-500'}`}>
+                            <div className={`mt-0.5 ${realtimeNotification.severity === 'critical' ? 'text-red-500' : realtimeNotification.severity === 'warning' ? 'text-amber-500' : 'text-blue-500'}`}>
+                                {realtimeNotification.severity === 'critical' ? <AlertTriangle size={24} /> : realtimeNotification.severity === 'warning' ? <AlertTriangle size={24} /> : <Info size={24} />}
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-surface-900">{realtimeNotification.title}</h4>
+                                <p className="text-sm text-surface-600 mt-1">{realtimeNotification.message}</p>
+                            </div>
+                            <button onClick={() => setRealtimeNotification(null)} className="text-surface-400 hover:text-surface-700 h-fit">
+                                <X size={16} />
+                            </button>
+                        </div>
+                    </div>
                 )}
 
                 {/* Page content */}

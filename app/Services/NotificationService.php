@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Notification;
 use App\Models\User;
+use App\Events\LowStockAlertEvent;
 
 class NotificationService
 {
@@ -15,9 +16,10 @@ class NotificationService
         ?int $userId = null,
         ?string $relatedType = null,
         ?int $relatedId = null,
+        ?int $warehouseId = null
     ): void {
         if ($userId) {
-            Notification::create([
+            $notification = Notification::create([
                 'user_id' => $userId,
                 'type' => $type,
                 'title' => $title,
@@ -26,11 +28,29 @@ class NotificationService
                 'related_type' => $relatedType,
                 'related_id' => $relatedId,
             ]);
+            
+            if (in_array($type, ['low_stock', 'transfer_incoming', 'transfer_completed', 'new_product'])) {
+                LowStockAlertEvent::dispatch($notification, $userId);
+            }
         } else {
-            // Notify all admins and managers
-            $users = User::whereIn('role', ['admin', 'manager'])->where('is_active', true)->get();
+            // Notify all admins, managers, and conditionally staff
+            $users = User::where('is_active', true)
+                ->where(function ($q) use ($warehouseId, $type) {
+                    if ($type === 'new_product') {
+                        // Global notification for everyone
+                        $q->whereNotNull('id');
+                    } else {
+                        $q->whereIn('role', ['admin', 'manager']);
+                        if ($warehouseId) {
+                            $q->orWhere(function ($sq) use ($warehouseId) {
+                                $sq->where('role', 'staff')->where('warehouse_id', $warehouseId);
+                            });
+                        }
+                    }
+                })->get();
+                
             foreach ($users as $user) {
-                Notification::create([
+                $notification = Notification::create([
                     'user_id' => $user->id,
                     'type' => $type,
                     'title' => $title,
@@ -39,6 +59,10 @@ class NotificationService
                     'related_type' => $relatedType,
                     'related_id' => $relatedId,
                 ]);
+                
+                if (in_array($type, ['low_stock', 'transfer_incoming', 'transfer_completed', 'new_product'])) {
+                    LowStockAlertEvent::dispatch($notification, $user->id);
+                }
             }
         }
     }
@@ -49,6 +73,7 @@ class NotificationService
         int $currentQty,
         int $minimumStock,
         int $productId,
+        ?int $warehouseId = null,
     ): void {
         $severity = $currentQty <= 0 ? 'critical' : ($currentQty <= $minimumStock / 2 ? 'critical' : 'warning');
 
@@ -59,6 +84,7 @@ class NotificationService
             severity: $severity,
             relatedType: 'product',
             relatedId: $productId,
+            warehouseId: $warehouseId
         );
     }
 }

@@ -38,7 +38,7 @@ class StockTransactionController extends Controller
         return Inertia::render('StockTransactions/Index', [
             'transactions' => $query->paginate(15)->withQueryString(),
             'warehouses' => $warehousesQuery->get(),
-            'products' => Product::where('is_active', true)->select('id', 'name', 'sku')->get(),
+            'products' => Product::where('is_active', true)->select('id', 'name', 'sku')->with('inventoryStocks:id,product_id,warehouse_id,quantity')->orderBy('name', 'asc')->get(),
             'suppliers' => Supplier::select('id', 'name')->get(),
             'filters' => $request->only(['search','type','warehouse_id','sort','direction', 'modal']),
         ]);

@@ -16,13 +16,16 @@ class StockTransactionService
             // Generate transaction code
             $code = $this->generateCode('in');
 
+            // Find product to get default supplier
+            $product = Product::find($data['product_id']);
+
             // Create transaction
             $transaction = StockTransaction::create([
                 'transaction_code' => $code,
                 'type' => 'in',
                 'product_id' => $data['product_id'],
                 'warehouse_id' => $data['warehouse_id'],
-                'supplier_id' => $data['supplier_id'] ?? null,
+                'supplier_id' => $data['supplier_id'] ?? $product->supplier_id ?? null,
                 'quantity' => $data['quantity'],
                 'transaction_date' => $data['transaction_date'],
                 'notes' => $data['notes'] ?? null,
@@ -140,6 +143,7 @@ class StockTransactionService
                     $freshStock->quantity,
                     $minStock,
                     $product->id,
+                    $warehouse->id
                 );
             }
 

@@ -11,7 +11,7 @@ test('TC-69: Low-stock notification is created', function () {
     $product = Product::factory()->create(['name' => 'Low Stock Product']);
     $warehouse = Warehouse::factory()->create(['name' => 'Test Warehouse']);
     
-    NotificationService::lowStockAlert($product->name, $warehouse->name, 5, 10, $product->id);
+    NotificationService::lowStockAlert($product->name, $warehouse->name, 5, 10, $product->id, $warehouse->id);
     
     $this->assertDatabaseHas('notifications', [
         'user_id' => $admin->id,
