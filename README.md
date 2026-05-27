@@ -6,6 +6,34 @@ Sistem ini dibuat untuk membantu PT Maju Bersama Digital dalam menggantikan pros
 
 ---
 
+## Table of Contents
+
+1. [Deskripsi Proyek](#1-deskripsi-proyek)
+2. [Tujuan Sistem](#2-tujuan-sistem)
+3. [Fitur Utama](#3-fitur-utama)
+4. [Aturan Penting Sistem](#4-aturan-penting-sistem)
+5. [Role Pengguna](#5-role-pengguna)
+6. [Hak Akses Role](#6-hak-akses-role)
+7. [Tech Stack](#7-tech-stack)
+8. [System Requirement](#8-system-requirement)
+9. [Instruksi Setup dan Instalasi](#9-instruksi-setup-dan-instalasi)
+10. [Menjalankan Aplikasi](#10-menjalankan-aplikasi)
+11. [Akun Demo](#11-akun-demo)
+12. [Cara Pengoperasian Sistem](#12-cara-pengoperasian-sistem)
+13. [Struktur Folder Project](#13-struktur-folder-project)
+14. [Database](#14-database)
+15. [Dokumentasi Route Internal](#15-dokumentasi-route-internal)
+16. [Testing](#16-testing)
+17. [Dokumentasi Pendukung](#17-dokumentasi-pendukung)
+18. [Security](#18-security)
+19. [Import dan Migrasi Data](#19-import-dan-migrasi-data)
+20. [Deployment](#20-deployment)
+21. [Status Pemenuhan Requirement](#21-status-pemenuhan-requirement)
+22. [Kontributor / Pengembang](#22-kontributor--pengembang)
+23. [Lisensi](#23-lisensi)
+
+---
+
 ## 1. Deskripsi Proyek
 
 PT Maju Bersama Digital merupakan perusahaan distribusi barang elektronik yang memiliki 5 gudang di beberapa kota besar Indonesia, yaitu Jakarta, Surabaya, Bandung, Medan, dan Makassar.
@@ -900,6 +928,18 @@ Jika menggunakan Pest:
 ./vendor/bin/pest
 ```
 
+Menjalankan test tertentu:
+
+```bash
+php artisan test --filter=AuthenticationTest
+```
+
+atau:
+
+```bash
+./vendor/bin/pest --filter=AuthenticationTest
+```
+
 Modul yang diuji:
 
 1. Login dan logout.
@@ -1012,161 +1052,7 @@ php artisan queue:work
 
 ---
 
-## 21. Build untuk Production
-
-Untuk membuat frontend assets versi production:
-
-```bash
-npm run build
-```
-
-Untuk menjalankan konfigurasi production Laravel:
-
-```bash
-composer install --optimize-autoloader --no-dev
-php artisan optimize:clear
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan migrate --force
-php artisan storage:link
-```
-
-Jalankan queue worker di production:
-
-```bash
-php artisan queue:work --tries=3 --timeout=120
-```
-
----
-
-## 22. Troubleshooting Setup
-
-### 22.1 Error Database Tidak Terhubung
-
-Pastikan PostgreSQL berjalan dan konfigurasi `.env` benar.
-
-Cek koneksi database:
-
-```bash
-php artisan migrate:status
-```
-
-Jika gagal, periksa bagian berikut pada `.env`:
-
-```env
-DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=smart_stock_pro
-DB_USERNAME=postgres
-DB_PASSWORD=
-```
-
-### 22.2 Error APP_KEY Tidak Ada
-
-Jalankan:
-
-```bash
-php artisan key:generate
-```
-
-### 22.3 Gambar Produk Tidak Muncul
-
-Jalankan:
-
-```bash
-php artisan storage:link
-```
-
-Lalu pastikan file tersimpan di storage yang benar.
-
-### 22.4 Perubahan `.env` Tidak Terbaca
-
-Jalankan:
-
-```bash
-php artisan optimize:clear
-```
-
-### 22.5 Import Tidak Diproses
-
-Pastikan queue worker berjalan:
-
-```bash
-php artisan queue:work
-```
-
-Jika job gagal, cek failed jobs:
-
-```bash
-php artisan queue:failed
-```
-
-Jalankan ulang job yang gagal:
-
-```bash
-php artisan queue:retry all
-```
-
-Hapus daftar failed jobs:
-
-```bash
-php artisan queue:flush
-```
-
-### 22.6 Frontend Tidak Ter-update
-
-Jalankan ulang Vite:
-
-```bash
-npm run dev
-```
-
-Jika masih bermasalah, hapus dependency dan install ulang:
-
-```bash
-rm -rf node_modules package-lock.json
-npm install
-npm run dev
-```
-
-Untuk Windows PowerShell:
-
-```powershell
-Remove-Item -Recurse -Force node_modules
-Remove-Item package-lock.json
-npm install
-npm run dev
-```
-
-### 22.7 Composer Dependency Bermasalah
-
-Jalankan:
-
-```bash
-composer dump-autoload
-composer install
-```
-
-Jika masih bermasalah:
-
-```bash
-rm -rf vendor composer.lock
-composer install
-```
-
-Untuk Windows PowerShell:
-
-```powershell
-Remove-Item -Recurse -Force vendor
-Remove-Item composer.lock
-composer install
-```
-
----
-
-## 23. Status Pemenuhan Requirement
+## 21. Status Pemenuhan Requirement
 
 | Modul | Status |
 |---|---|
@@ -1186,43 +1072,25 @@ composer install
 
 ---
 
-## 24. Screenshot Aplikasi
+## 22. Kontributor / Pengembang
 
-Tambahkan screenshot fitur utama pada bagian ini.
+Proyek ini dikembangkan secara individu.
 
-Daftar screenshot yang disarankan:
-
-1. Halaman login.
-2. Dashboard utama Admin/Manajer Gudang.
-3. My Warehouse Staf Gudang.
-4. Data produk.
-5. Monitoring stok per gudang.
-6. Data gudang.
-7. Barang masuk.
-8. Barang keluar.
-9. Transfer antar gudang.
-10. Laporan.
-11. Notifikasi.
-12. Peta gudang.
-13. Audit log.
-14. Error log.
-
-Contoh format:
-
-```md
-### Login
-![Login](docs/screenshots/login.png)
-
-### Dashboard
-![Dashboard](docs/screenshots/dashboard.png)
-
-### My Warehouse
-![My Warehouse](docs/screenshots/my-warehouse.png)
-```
+| Nama | Role |
+|---|---|
+| Julius Calvin Kurniadi | Full Stack Developer |
 
 ---
 
-## 25. Ringkasan Command Setup Cepat
+## 23. Lisensi
+
+Proyek ini dibuat untuk kebutuhan pembelajaran, demonstrasi, dan asesmen proyek pengembangan web.
+
+Jika ingin menambahkan lisensi formal, gunakan salah satu lisensi open-source seperti MIT License.
+
+---
+
+## 24. Ringkasan Command Setup Cepat
 
 Gunakan command berikut untuk setup cepat dari awal:
 
@@ -1254,19 +1122,3 @@ Pada terminal lain untuk queue:
 ```bash
 php artisan queue:work
 ```
-
----
-
-## 26. Kontributor / Pengembang
-
-Proyek ini dikembangkan secara individu.
-
-| Nama | Role |
-|---|---|
-| Julius Calvin Kurniadi | Full Stack Developer |
-
----
-
-## 27. Lisensi
-
-Proyek ini dibuat untuk kebutuhan pembelajaran, demonstrasi, dan asesmen proyek pengembangan web.
