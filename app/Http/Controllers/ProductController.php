@@ -54,7 +54,7 @@ class ProductController extends Controller
 
     public function create()
     {
-        if (auth()->user()->role === 'staff' || auth()->user()->role === 'auditor') {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
             abort(403, 'Akses ditolak.');
         }
 
@@ -66,7 +66,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->role === 'staff' || auth()->user()->role === 'auditor') {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
             abort(403, 'Akses ditolak.');
         }
 
@@ -116,7 +116,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        if (auth()->user()->role === 'staff' || auth()->user()->role === 'auditor') {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
             abort(403, 'Akses ditolak.');
         }
 
@@ -129,7 +129,7 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        if (auth()->user()->role === 'staff' || auth()->user()->role === 'auditor') {
+        if (auth()->user()->role === 'staff' || auth()->user()->role === 'viewer') {
             abort(403, 'Akses ditolak.');
         }
 

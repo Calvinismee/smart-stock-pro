@@ -19,7 +19,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
-            'role' => 'auditor',
+            'role' => 'viewer',
             'warehouse_id' => null,
             'is_active' => true,
             'remember_token' => Str::random(10),
@@ -44,8 +44,8 @@ class UserFactory extends Factory
         ]);
     }
 
-    public function auditor(): static
+    public function viewer(): static
     {
-        return $this->state(['role' => 'auditor']);
+        return $this->state(['role' => 'viewer']);
     }
 }

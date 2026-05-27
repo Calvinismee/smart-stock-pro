@@ -109,11 +109,11 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        $users['auditor'] = User::create([
-            'name' => 'Auditor',
-            'email' => 'auditor@smartstock.test',
+        $users['viewer'] = User::create([
+            'name' => 'Viewer',
+            'email' => 'viewer@smartstock.test',
             'password' => Hash::make('Password123!'),
-            'role' => 'auditor',
+            'role' => 'viewer',
             'is_active' => true,
             'email_verified_at' => now(),
         ]);

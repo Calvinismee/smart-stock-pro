@@ -70,15 +70,15 @@ Route::middleware(['auth'])->group(function () {
     // Products Show — Read-only for all roles
     Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
-    // Categories/Suppliers — Read-only for all roles (or just admin/manager if not needed by auditor, but auditor might need them for filtering. We'll leave index if needed, but for now they are resource)
-    // Wait, the prompt doesn't explicitly mention auditor accessing category index. It says "create/edit/delete category". We'll keep them as admin/manager.
+    // Categories/Suppliers — Read-only for all roles (or just admin/manager if not needed by viewer, but viewer might need them for filtering. We'll leave index if needed, but for now they are resource)
+    // Wait, the prompt doesn't explicitly mention viewer accessing category index. It says "create/edit/delete category". We'll keep them as admin/manager.
     Route::middleware([RoleMiddleware::class . ':admin,manager'])->group(function () {
         Route::resource('categories', CategoryController::class)->except('show');
         Route::resource('suppliers', SupplierController::class)->except('show');
     });
 
-    // Warehouses Index — Read-only for Auditor
-    Route::middleware([RoleMiddleware::class . ':admin,manager,auditor'])->group(function () {
+    // Warehouses Index — Read-only for Viewer
+    Route::middleware([RoleMiddleware::class . ':admin,manager,viewer'])->group(function () {
         Route::get('/warehouses', [WarehouseController::class, 'index'])->name('warehouses.index');
     });
 
@@ -87,8 +87,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('warehouses', WarehouseController::class)->except(['index', 'show']);
     });
 
-    // Warehouses Show — Read-only for Auditor
-    Route::middleware([RoleMiddleware::class . ':admin,manager,auditor'])->group(function () {
+    // Warehouses Show — Read-only for Viewer
+    Route::middleware([RoleMiddleware::class . ':admin,manager,viewer'])->group(function () {
         Route::get('/warehouses/{warehouse}', [WarehouseController::class, 'show'])->name('warehouses.show');
     });
 
@@ -115,8 +115,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/import/template/{type}', [ImportController::class, 'downloadTemplate'])->name('import.template');
     });
 
-    // Reports Index — Admin, Manager, Auditor
-    Route::middleware([RoleMiddleware::class . ':admin,manager,auditor'])->group(function () {
+    // Reports Index — Admin, Manager, Viewer
+    Route::middleware([RoleMiddleware::class . ':admin,manager,viewer'])->group(function () {
         Route::get('/reports', [ExportController::class, 'index'])->name('reports.index');
     });
 

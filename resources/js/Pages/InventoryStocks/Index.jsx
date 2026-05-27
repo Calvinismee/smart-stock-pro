@@ -5,7 +5,7 @@ import { Box, Package } from 'lucide-react';
 
 export default function Index({ stocks, categories, warehouses, filters }) {
     const { auth } = usePage().props;
-    const canViewProducts = ['admin', 'manager', 'auditor'].includes(auth.user.role);
+    const canViewProducts = ['admin', 'manager', 'viewer'].includes(auth.user.role);
     const columns = [
         { key: 'product.sku', label: 'SKU', sortable: false, render: r => <span className="font-mono text-xs">{r.product?.sku}</span> },
         { key: 'product.name', label: 'Produk', sortable: false, render: r => (

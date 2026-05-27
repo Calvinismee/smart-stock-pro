@@ -37,11 +37,11 @@ test('staff is redirected to my-warehouse after login', function () {
     ])->assertRedirect(route('my-warehouse'));
 });
 
-test('auditor can access dashboard', function () {
-    $auditor = User::factory()->create(['role' => 'auditor']);
+test('viewer can access dashboard', function () {
+    $viewer = User::factory()->create(['role' => 'viewer']);
     
     $this->post('/login', [
-        'email' => $auditor->email,
+        'email' => $viewer->email,
         'password' => 'password',
     ])->assertRedirect(route('dashboard'));
 });

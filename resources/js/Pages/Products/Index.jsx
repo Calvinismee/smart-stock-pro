@@ -8,7 +8,7 @@ export default function Index({ products, categories, warehouses, filters }) {
     const { auth } = usePage().props;
     const isStaff = auth.user.role === 'staff';
     const isAdmin = auth.user.role === 'admin';
-    const isAuditor = auth.user.role === 'auditor';
+    const isViewer = auth.user.role === 'viewer';
     const canMutate = ['admin', 'manager'].includes(auth.user.role);
     const [showGlobal, setShowGlobal] = useState(!isStaff);
     

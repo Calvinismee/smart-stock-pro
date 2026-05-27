@@ -40,7 +40,7 @@ const navigation = {
         { name: 'Transfer Gudang', href: '/stock-transfers', icon: ArrowLeftRight },
         { name: 'Notifikasi', href: '/notifications', icon: Bell },
     ],
-    auditor: [
+    viewer: [
         { name: 'Dashboard', href: '/', icon: LayoutDashboard },
         { name: 'Produk & Stok', href: '/products', icon: Package },
         { name: 'Monitoring Stok', href: '/inventory-stocks', icon: Box },
@@ -49,14 +49,14 @@ const navigation = {
     ],
 };
 
-const roleLabels = { admin: 'Administrator', manager: 'Manajer Gudang', staff: 'Staf Gudang', auditor: 'Auditor' };
+const roleLabels = { admin: 'Administrator', manager: 'Manajer Gudang', staff: 'Staf Gudang', viewer: 'Viewer' };
 
 export default function AuthenticatedLayout({ children, title }) {
     const { auth, flash, notifications_count } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const user = auth.user;
-    const navItems = navigation[user.role] || navigation.auditor;
+    const navItems = navigation[user.role] || navigation.viewer;
     const currentPath = window.location.pathname;
 
     return (
