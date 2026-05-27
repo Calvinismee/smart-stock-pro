@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class StockTransfer extends Model
 {
     use HasFactory;
-
     protected $fillable = [
         'transfer_code',
         'product_id',

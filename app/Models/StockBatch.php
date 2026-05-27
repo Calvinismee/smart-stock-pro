@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class StockBatch extends Model
 {
+    use \Illuminate\Database\Eloquent\Factories\HasFactory;
+
     protected $fillable = [
         'product_id',
         'warehouse_id',

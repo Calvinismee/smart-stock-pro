@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class StockTransaction extends Model
 {
     use HasFactory;
-
     protected $fillable = [
         'transaction_code',
         'type',

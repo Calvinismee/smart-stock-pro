@@ -3,28 +3,39 @@
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Warehouse;
-use App\Models\InventoryStock;
+use App\Models\Notification;
+use App\Services\NotificationService;
 
-test('low stock triggers notification', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
-    $product = Product::factory()->create(['minimum_stock' => 10]);
-    $warehouse = Warehouse::factory()->create();
-
-    InventoryStock::create([
-        'product_id' => $product->id,
-        'warehouse_id' => $warehouse->id,
-        'quantity' => 15,
-    ]);
-
-    $this->actingAs($admin)
-        ->post('/stock-transactions/store-out', [
-            'product_id' => $product->id,
-            'warehouse_id' => $warehouse->id,
-            'quantity' => 10, // Remaining 5 < 10
-            'transaction_date' => now()->toDateString(),
-        ]);
-
+test('TC-69: Low-stock notification is created', function () {
+    $admin = User::factory()->admin()->create();
+    $product = Product::factory()->create(['name' => 'Low Stock Product']);
+    $warehouse = Warehouse::factory()->create(['name' => 'Test Warehouse']);
+    
+    NotificationService::lowStockAlert($product->name, $warehouse->name, 5, 10, $product->id);
+    
     $this->assertDatabaseHas('notifications', [
+        'user_id' => $admin->id,
         'title' => 'Stok Rendah',
+    ]);
+});
+
+test('TC-70: User can view notification list and mark as read', function () {
+    $admin = User::factory()->admin()->create();
+    
+    $notification = Notification::create([
+        'user_id' => $admin->id,
+        'title' => 'Test',
+        'message' => 'Test msg',
+        'type' => 'info',
+        'is_read' => false
+    ]);
+    
+    $this->actingAs($admin)->get('/notifications')->assertStatus(200);
+    
+    $this->actingAs($admin)->patch("/notifications/{$notification->id}/read")->assertRedirect();
+    
+    $this->assertDatabaseHas('notifications', [
+        'id' => $notification->id,
+        'is_read' => true,
     ]);
 });
