@@ -24,14 +24,19 @@ Aplikasi ini dikembangkan untuk menggantikan proses pencatatan stok manual berba
 ## Fitur Utama
 
 - Login multi-role
-- Dashboard inventaris
+- Dashboard inventaris dengan Sidebar Terkunci (Fixed Layout)
 - My Warehouse untuk Staf Gudang
-- Master produk global
-- Monitoring stok per produk per gudang
+- Master produk global tersentralisasi
+- Monitoring stok aktual per produk per gudang (Katalog Produk & Stok)
 - CRUD produk, kategori, gudang, supplier, dan user
-- Transaksi barang masuk dan barang keluar
-- Transfer barang antar gudang
-- Alert stok minimum dan notifikasi aplikasi
+- Transaksi barang masuk dan barang keluar (Auto-Supplier detection)
+- Transfer barang antar gudang dengan Modal Konfirmasi interaktif
+- Notifikasi Real-Time (WebSocket/Laravel Reverb) untuk:
+  - Peringatan Stok Minimum (Critical)
+  - Notifikasi Transfer Barang Masuk (Info)
+  - Konfirmasi Penerimaan Transfer (Info)
+  - Pengumuman Produk Baru (Global Broadcast)
+- Form Tambah Produk Premium dengan *Custom Drag-and-Drop Image Uploader*
 - Import CSV/Excel dengan background job
 - Export laporan
 - Audit log dan error log
