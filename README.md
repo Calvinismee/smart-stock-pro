@@ -209,7 +209,8 @@ http://127.0.0.1:8000
 |---|---|---|
 | Admin | admin@smartstock.test | Password123! |
 | Manajer Gudang | manager@smartstock.test | Password123! |
-| Staf Gudang | staff@smartstock.test | Password123! |
+| Staf Gudang Jakarta | staff_jakarta@smartstock.test | Password123! |
+| Staf Gudang Makassar| staff_makassar@smartstock.test | Password123! |
 | Viewer | viewer@smartstock.test | Password123! |
 
 ## Command Penting
