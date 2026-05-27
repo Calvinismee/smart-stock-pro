@@ -88,7 +88,7 @@ export default function AuthenticatedLayout({ children, title }) {
             {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
             {/* Sidebar */}
-            <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-surface-950 text-white transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-surface-950 text-white transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="flex items-center justify-between h-16 px-4 border-b border-surface-800">
                     <Link href="/" className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center font-bold text-sm">SS</div>
@@ -115,7 +115,7 @@ export default function AuthenticatedLayout({ children, title }) {
             </aside>
 
             {/* Main content */}
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
                 {/* Topbar */}
                 <header className="h-16 bg-white border-b border-surface-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
                     <div className="flex items-center gap-4">
