@@ -207,10 +207,10 @@ http://127.0.0.1:8000
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | admin@smartstock.test | password |
-| Manajer Gudang | manager@smartstock.test | password |
-| Staf Gudang | staff@smartstock.test | password |
-| Viewer | viewer@smartstock.test | password |
+| Admin | admin@smartstock.test | Password123! |
+| Manajer Gudang | manager@smartstock.test | Password123! |
+| Staf Gudang | staff@smartstock.test | Password123! |
+| Viewer | viewer@smartstock.test | Password123! |
 
 ## Command Penting
 
